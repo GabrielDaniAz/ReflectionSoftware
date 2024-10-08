@@ -6,6 +6,7 @@ import java.net.URLClassLoader;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -86,6 +87,8 @@ public class ReflectionAnalysisService {
         result.append("Campos (atributos):\n");
         for (Field field : fields) {
             result.append("\t").append(field.toString()).append("\n");
+            int modifiers = field.getModifiers();
+            result.append("\tModificador: ").append(Modifier.toString(modifiers)).append("\n");
         }
 
         result.append("\n");
