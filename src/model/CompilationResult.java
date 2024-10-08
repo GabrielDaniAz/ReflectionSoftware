@@ -1,50 +1,92 @@
 package model;
 
 import java.io.File;
+import javax.tools.Diagnostic;
+import javax.tools.JavaFileObject;
 import java.util.List;
+import java.util.ArrayList;
 
-// Classe para armazenar o resultado da compilação de um arquivo .java.
+/**
+ * Representa o resultado da compilação de arquivos Java, contendo informações
+ * sobre o sucesso ou falha, arquivos compilados e diagnósticos gerados.
+ */
 public class CompilationResult {
-    
-    private File file;
-    private final boolean success;
-    private final List<String> messages;
 
-    public CompilationResult(File file, boolean success, List<String> messages){
-        this.file = file;
+    private File directory;
+    private List<File> compiledFiles;
+    private boolean success;
+    private List<Diagnostic<? extends JavaFileObject>> diagnostics;
+
+    /**
+     * Construtor da classe CompilationResult.
+     * 
+     * @param directory O diretório onde os arquivos .class compilados estão localizados.
+     * @param success Indica se a compilação foi bem-sucedida.
+     * @param diagnostics Lista de diagnósticos gerados durante a compilação.
+     */
+    public CompilationResult(File directory, boolean success, List<Diagnostic<? extends JavaFileObject>> diagnostics) {
+        this.directory = directory;
         this.success = success;
-        this.messages = messages;
-    }
-
-    public File getFile(){
-        return file;
-    }
-
-    public boolean isSuccess(){
-        return success;
-    }
-
-    public List<String> getMessages() {
-        return messages;
+        this.diagnostics = diagnostics;
+        this.compiledFiles = findClassFiles(directory);
     }
 
     /**
-     * Gera detalhes completos sobre a compilação para o relatório.
+     * Retorna o diretório onde a compilação foi realizada.
      * 
-     * @return String com os detalhes da compilação.
+     * @return O diretório de compilação.
      */
-    public String generateDetails() {
-        StringBuilder details = new StringBuilder();
-        details.append("\t- Status: ").append(isSuccess() ? "Sucesso" : "Falhou").append("\n");
-        details.append("\t- Mensagens: ").append("\n");
-        if (messages.size() == 0) {
-            details.append("\t\t> Nenhum erro de compilação\n");
+    public File getDirectory() {
+        return directory;
+    }
+
+    /**
+     * Verifica se a compilação foi bem-sucedida.
+     * 
+     * @return true se a compilação foi bem-sucedida, false caso contrário.
+     */
+    public boolean isSuccess() {
+        return success;
+    }
+
+    /**
+     * Retorna a lista de diagnósticos gerados durante a compilação.
+     * 
+     * @return Lista de diagnósticos {@link Diagnostic}.
+     */
+    public List<Diagnostic<? extends JavaFileObject>> getDiagnostics() {
+        return diagnostics;
+    }
+
+    /**
+     * Retorna a lista de arquivos .class gerados pela compilação.
+     * 
+     * @return Lista de arquivos compilados.
+     */
+    public List<File> getCompiledFiles() {
+        return compiledFiles;
+    }
+
+    /**
+     * Busca recursivamente por arquivos .class no diretório de compilação e subdiretórios.
+     * 
+     * @param directory Diretório atual sendo analisado.
+     * @return Lista de arquivos .class encontrados.
+     */
+    private List<File> findClassFiles(File directory) {
+        List<File> compiledFiles = new ArrayList<>(); // Lista para armazenar os arquivos encontrados
+
+        if (directory.isDirectory()) {
+            for (File file : directory.listFiles()) {
+                if (file.isDirectory()) {
+                    // Recursivamente busca em subdiretórios
+                    compiledFiles.addAll(findClassFiles(file));
+                } else if (file.getName().endsWith(".class")) {
+                    // Adiciona arquivos .class encontrados
+                    compiledFiles.add(file);
+                }
+            }
         }
-        
-        for (String message : messages) {
-            details.append("\t\t> ").append(message).append("\n");
-        }
-        
-        return details.toString();
+        return compiledFiles; // Retorna a lista de arquivos encontrados
     }
 }

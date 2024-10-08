@@ -1,73 +1,119 @@
 package controller;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import util.FileManager;
+import java.util.ArrayList;
+import java.util.HashMap;
 
-//Responsável por gerenciar a interação com o sistema de arquivos. Ele solicitará a pasta onde estão localizadas as provas dos alunos.
+/**
+ * FileController gerencia a coleta de arquivos .java dos subdiretórios de um diretório raiz.
+ */
 public class FileController {
 
+    private final File rootDirectory;
+    private final List<File> subdirectories;
+    private final Map<File, List<File>> javaFilesFromDirectory;
+
     /**
-     * Solicita a pasta onde estão localizadas as provas dos alunos e retorna um mapa associando
-     * o nome do aluno (nome da pasta) aos arquivos .java encontrados.
+     * Construtor para inicializar o controlador com o diretório raiz e processar os arquivos .java.
      * 
-     * @param directoryPath Caminho da pasta onde estão localizadas as pastas dos alunos. 
-     * @return Mapa de alunos e seus arquivos .java. 
-     * @throws IllegalArgumentException Se o caminho fornecido não for uma pasta válida. 
+     * @param rootDirectory O diretório raiz onde os subdiretórios serão pesquisados.
      */
-    public static Map<String, List<File>> getJavaFilesByStudent(String directoryPath) throws IllegalArgumentException {
+    public FileController(String rootDirectory) {
+        validateDirectoryPath(rootDirectory);
+        this.rootDirectory = new File(rootDirectory);
+        this.subdirectories = retrieveSubdirectories();
+        this.javaFilesFromDirectory = initializeJavaFiles();
+    }
+
+    /**
+     * Inicializa o mapa de subdiretórios e seus arquivos .java correspondentes.
+     * 
+     * @param rootDirectory O diretório raiz.
+     * @return Mapa com o nome do subdiretório e a lista de arquivos .java.
+     */
+    private Map<File, List<File>> initializeJavaFiles() {
+        Map<File, List<File>> javaFilesMap = new HashMap<>();
+
+        for (File directory : subdirectories) {
+            List<File> javaFiles = getAllJavaFiles(directory);
+            javaFilesMap.put(directory, javaFiles);
+        }
+
+        return javaFilesMap;
+    }
+
+    /**
+     * Busca todos os arquivos .java em um diretório e suas subpastas.
+     * 
+     * @param directory Diretório raiz onde a busca será iniciada
+     * @return Lista de arquivos .java encontrados.
+     */
+    private static List<File> getAllJavaFiles(File directory){
+        List<File> javaFiles = new ArrayList<>();
+        // Verifica se o diretório existe e é realmente uma pasta
+        if(directory.exists() && directory.isDirectory()){
+            // Lista todos os arquivos e subpastas dentro de diretório
+            File[] files = directory.listFiles();
+            if(files != null) {
+                for (File file : files) {
+                    // Ignora a pasta bin
+                    if(file.isDirectory() && file.getName().equals("bin")) continue;
+                    
+                    if(file.isDirectory()){
+                        // Recursão para subpastas
+                        javaFiles.addAll(getAllJavaFiles(file));
+                    } else if(file.isFile() && file.getName().endsWith(".java")){
+                        // Adiciona o arquivo .java encontrado à lista
+                        javaFiles.add(file);
+                    }
+                }
+            }
+        }
+        return javaFiles;
+    }
+
+    /**
+     * Valida se o caminho fornecido é um diretório existente e válido.
+     * 
+     * @param directoryPath O caminho do diretório a ser validado.
+     * @throws IllegalArgumentException Se o caminho fornecido não for um diretório válido.
+     */
+    private void validateDirectoryPath(String directoryPath) {
         File directory = new File(directoryPath);
-
-        if(!directory.exists() || !directory.isDirectory()) {
-            throw new IllegalArgumentException("O caminho fornecido não é uma pasta válida.");
+        if (!directory.exists() || !directory.isDirectory()) {
+            throw new IllegalArgumentException("O caminho fornecido não é um diretório válido.");
         }
+    }
 
-        // Busca todos os arquivos .java utilizando FileManager
-        List<File> javaFiles = FileManager.getAllJavaFiles(directory);
 
-        // Agrupa os arquivos .java por aluno (nome da pasta pai)
-        return groupFilesByStudent(javaFiles, directory);
+    /**
+     * Retorna uma lista de subdiretórios dentro do diretório raiz.
+     * 
+     * @return Lista de subdiretórios encontrados.
+     */
+    private List<File> retrieveSubdirectories() {
+        List<File> subdirectoryList = new ArrayList<>();
+
+        File[] listFiles = rootDirectory.listFiles();
+        if (listFiles != null) {
+            for (File file : listFiles) {
+                if (file.isDirectory()) {
+                    subdirectoryList.add(file);
+                }
+            }
+        }
+        return subdirectoryList;
     }
 
     /**
-     * Agrupa os arquivos .java por aluno, subindo a hierarquia de pastas até encontrar a pasta do aluno. 
+     * Retorna o mapa contendo o nome do subdiretório e os arquivos .java correspondentes.
      * 
-     * @param javaFiles Lista de arquivos .java encontrados. 
-     * @param rootDirectory Diretório raiz que contém as pastas dos alunos.
-     * @return Mapa que associa o nome do aluno (pasta pai) à lista de arquivos .java. 
+     * @return Mapa de subdiretórios e arquivos .java.
      */
-    private static Map<String, List<File>> groupFilesByStudent(List<File> javaFiles, File rootDirectory) {
-        Map<String, List<File>> studentFilesMap = new HashMap<>();
-
-        for (File file : javaFiles) {
-            String studentName = getStudentName(file, rootDirectory);
-            studentFilesMap.computeIfAbsent(studentName, k -> new ArrayList<>()).add(file);
-        }
-
-        return studentFilesMap;
-    }
-
-    /**
-     * Identifica o nome do aluno subindo na hierarquia de pastas até encontrar a pasta de
-     * nível superior diretamente abaixo do diretório raiz (pastas com nome dos alunos)
-     * 
-     * @param file O arquivo .java
-     * @param rootDirectory O diretório raiz que contém as pastas dos alunos
-     * @return O nome da pasta que representa o aluno
-     */
-    private static String getStudentName(File file, File rootDirectory) {
-        File parent = file.getParentFile();
-
-        // Subimos na hierarquia de pastas até encontrar a pasta diretamente abaixo do root directory
-        while(parent != null && !parent.getParentFile().equals(rootDirectory)) {
-            parent = parent.getParentFile();
-        }
-
-        return parent != null ? parent.getName() : "Desconhecido";
+    public Map<File, List<File>> getJavaFilesFromDirectory() {
+        return javaFilesFromDirectory;
     }
 }
-

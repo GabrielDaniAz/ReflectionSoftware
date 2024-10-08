@@ -1,48 +1,100 @@
 package service;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-
+import javax.tools.*;
 import model.CompilationResult;
 
-// Responsável por compilar os arquivos Java dos alunos utilizando ProcessBuilder e lidar com os erros de compilação.
+import java.io.File;
+import java.io.IOException;
+import java.util.List;
+import java.util.Locale;
+
+/**
+ * Serviço responsável por compilar arquivos Java fornecidos.
+ * Utiliza a API Java Compiler e gerencia diagnósticos durante o processo de compilação.
+ */
 public class CompilationService {
-    
+
+    private final JavaCompiler compiler;
+
     /**
-     * Compila um arquivo .java e retorna o resultado da compilação.
-     * 
-     * @param javaFile Arquivo .java a ser compilado.
-     * @return Resultado da compilação encapsulado em um CompilationResult.
+     * Construtor inicializa o compilador Java usando o ToolProvider.
      */
+    public CompilationService() {
+        this.compiler = ToolProvider.getSystemJavaCompiler();
+    }
 
-     public static CompilationResult compileJavaFile(File javaFile) {
-        List<String> messages = new ArrayList<>();
-        boolean success = false;
+    /**
+     * Compila uma lista de arquivos .java e armazena os arquivos compilados no diretório fornecido.
+     *
+     * @param javaFiles Lista de arquivos .java a serem compilados.
+     * @param compileDir Diretório onde os arquivos compilados serão armazenados.
+     * @return Um {@link CompilationResult} contendo o sucesso da compilação e possíveis diagnósticos.
+     */
+    public CompilationResult compile(List<File> javaFiles, File compileDir) {
+        DiagnosticCollector<JavaFileObject> diagnostics = new DiagnosticCollector<>();
 
-        try {
-            // Usa o ProcessBuilder para invocar o compilador 'javac'
-            ProcessBuilder processBuilder = new ProcessBuilder("javac", javaFile.getAbsolutePath());
-
-            // Define o diretório onde a compilação deve ser feita
-            processBuilder.directory(javaFile.getParentFile());
-
-            // Inicia o processo de compilação
-            Process process = processBuilder.start();
-
-            // Aguarda a conclusão do processo de compilação
-            int exitCode = process.waitFor();
-
-            success = (exitCode == 0);
-
-            if(!success) {
-                messages.add("Erro ao compilar: " + javaFile.getName());
-            } 
-        } catch (IOException | InterruptedException e) {
-            messages.add("Exceção ao compilar: " + e.getMessage());
+        if (javaFiles.isEmpty()) {
+            System.out.println("Nenhum arquivo .java fornecido.");
+            return new CompilationResult(compileDir, false, List.of()); // Falha, sem diagnósticos
         }
 
-        return new CompilationResult(javaFile, success, messages);
-     }
+        try (StandardJavaFileManager fileManager = createFileManager(compileDir, diagnostics)) {
+            Iterable<? extends JavaFileObject> compilationUnits = getCompilationUnits(fileManager, javaFiles);
+            boolean success = executeCompilation(fileManager, compilationUnits, diagnostics);
+            return new CompilationResult(compileDir, success, diagnostics.getDiagnostics());
+        } catch (IOException e) {
+            System.out.println("Erro ao gerenciar arquivos Java: " + e.getMessage());
+            return new CompilationResult(compileDir, false, diagnostics.getDiagnostics());
+        }
+    }
+
+    /**
+     * Cria e configura o {@link StandardJavaFileManager} para gerenciar arquivos de entrada e saída de compilação.
+     * Define o diretório de saída da compilação.
+     *
+     * @param compileDir Diretório de saída para os arquivos compilados.
+     * @param diagnostics Coletor de diagnósticos para armazenar erros e avisos.
+     * @return Um {@link StandardJavaFileManager} configurado.
+     * @throws IOException Se houver erros ao configurar o gerenciador de arquivos.
+     */
+    private StandardJavaFileManager createFileManager(File compileDir, DiagnosticCollector<JavaFileObject> diagnostics) throws IOException {
+        StandardJavaFileManager fileManager = compiler.getStandardFileManager(diagnostics, Locale.getDefault(), null);
+        if (!compileDir.exists()) {
+            compileDir.mkdirs();
+        }
+        fileManager.setLocation(StandardLocation.CLASS_OUTPUT, List.of(compileDir));
+        return fileManager;
+    }
+
+    /**
+     * Converte uma lista de arquivos .java em unidades de compilação ({@link JavaFileObject}).
+     *
+     * @param fileManager Gerenciador de arquivos usado para criar objetos de arquivos de compilação.
+     * @param javaFiles Lista de arquivos .java a serem compilados.
+     * @return Um iterable de {@link JavaFileObject} correspondente aos arquivos de entrada.
+     */
+    private Iterable<? extends JavaFileObject> getCompilationUnits(StandardJavaFileManager fileManager, List<File> javaFiles) {
+        return fileManager.getJavaFileObjectsFromFiles(javaFiles);
+    }
+
+    /**
+     * Executa a tarefa de compilação dos arquivos fornecidos.
+     *
+     * @param fileManager Gerenciador de arquivos usado para a tarefa de compilação.
+     * @param compilationUnits Unidades de compilação a serem processadas.
+     * @param diagnostics Coletor de diagnósticos que armazenará erros e avisos.
+     * @return {@code true} se a compilação for bem-sucedida, {@code false} caso contrário.
+     */
+    private boolean executeCompilation(StandardJavaFileManager fileManager, Iterable<? extends JavaFileObject> compilationUnits, DiagnosticCollector<JavaFileObject> diagnostics) {
+        JavaCompiler.CompilationTask task = compiler.getTask(
+                null,           // Writer para mensagens de erro (null usa o padrão System.err)
+                fileManager,        // Gerenciador de arquivos
+                diagnostics,        // Coletor de diagnósticos (erros/warnings)
+                null,       // Opções de compilação (nenhuma específica)
+                null,       // Nomes de classes (nenhum específico)
+                compilationUnits    // Arquivos a serem compilados
+        );
+
+        return task.call();
+    }
 }

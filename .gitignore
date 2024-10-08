@@ -1,0 +1,20 @@
+# Ignorar a pasta bin
+/bin/
+
+# Ignorar arquivos de classe Java
+*.class
+
+# Ignorar arquivos de log
+*.log
+
+# Ignorar arquivos temporários do sistema
+*.tmp
+*.temp
+
+# Ignorar arquivos de configuração do IDE
+.idea/
+*.iml
+*.class
+
+# Ignorar diretórios de build do Maven, se aplicável
+target/

@@ -1,35 +1,74 @@
 package controller;
 
+import model.CompilationResult;
+import model.Student;
+import service.CompilationService;
+import service.ReflectionAnalysisService;
+
 import java.io.File;
 import java.util.List;
-import java.util.Map;
 
-import factory.StudentFactory;
-import model.Student;
-import service.CorrectionService;
-
-// Controla o fluxo de correção, orquestrando os serviços necessários para buscar os arquivos dos alunos, instanciar objetos Student, e iniciar a correção.
+// Controlador responsável por orquestrar a correção de múltiplos alunos.
 public class CorrectionController {
-    
+
+    private List<Student> students;
+    private CompilationService compilationService;
+    private ReflectionAnalysisService reflectionAnalysisService;
+
     /**
-     * Inicia o processo de correção a partir do caminho do diretório.
+     * Construtor da classe CorrectionController.
      * 
-     * @param directoryPath Caminho do diretório onde estão os arquivos dos alunos.
-     * @throws Exception 
+     * @param students A lista de alunos que terão seus códigos corrigidos.
      */
-    public static void processCorrections(String directoryPath) throws Exception {
-        // 1. Obter arquivos .java dos alunos
-        Map<String, List<File>> javaFilesByStudent = FileController.getJavaFilesByStudent(directoryPath);
+    public CorrectionController(List<Student> students) {
+        this.students = students;
+        this.compilationService = new CompilationService();
+        this.reflectionAnalysisService = new ReflectionAnalysisService();
+    }
 
-        // 2. Criar objetos Student
-        List<Student> students = StudentFactory.createStudents(javaFilesByStudent);
-
-        // 3. Iniciar a correção para cada aluno
+    /**
+     * Inicia o processo de correção para todos os alunos.
+     * 
+     * Para cada aluno, o método {@link #correctStudent(Student)} é chamado para realizar a correção individualmente.
+     */
+    public void startCorrection() {
         for (Student student : students) {
-            CorrectionService.correctStudent(student);
+            try {
+                correctStudent(student);
+            } catch (Exception e) {
+                // Lidar com erros específicos de cada aluno
+                System.err.println("Erro ao corrigir o aluno " + student.getName() + ": " + e.getMessage());
+            }
         }
+    }
 
-        // 4. Gerar os relatórios finais para todos os alunos
-        ReportManager.generateDetails();
+    /**
+     * Realiza a correção de um aluno individual, compilando os arquivos Java submetidos e reportando o resultado.
+     * Se a compilação for bem-sucedida, os arquivos .class gerados são analisados pelo serviço de reflexão.
+     *
+     * @param student O aluno cujos arquivos de código serão corrigidos.
+     * @throws Exception Caso ocorra algum erro durante a compilação ou análise dos arquivos.
+     */
+    private void correctStudent(Student student) throws Exception {
+        // Diretório de saída para os arquivos .class compilados
+        File binDirectory = new File(student.getRootDirectory(), "bin");
+
+        // Compilando os arquivos Java do aluno
+        CompilationResult compilationResult = compilationService.compile(student.getSubmittedFiles(), binDirectory);
+        student.setCompilationResult(compilationResult);
+
+        // Se a compilação for bem-sucedida, realiza a análise de reflexão das classes
+        if (compilationResult.isSuccess()) {
+            // Obtém os arquivos .class gerados pela compilação
+            List<File> compiledClassFiles = student.getCompilationResult().getCompiledFiles();
+
+            // Analisando as classes compiladas
+            List<String> analysisResults = reflectionAnalysisService.analyzeClasses(compiledClassFiles, binDirectory);
+            student.setReflectionResults(analysisResults);
+
+        } else {
+            // Reporta o erro caso a compilação falhe
+            System.err.println("Compilação falhou para o aluno " + student.getName());
+        }
     }
 }
