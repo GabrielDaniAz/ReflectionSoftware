@@ -14,9 +14,10 @@ O software foi projetado para automatizar o processo de correção de exercício
 ### Exemplo de Uso
 
 1. **Execução do Programa**:
-   Para executar o programa, utilize o comando _(dentro da pasta bin)_:
+   Para executar o programa, utilize o comando:
    
    ```java
-   java Main "caminho/pasta/raiz"
+   mvn clean install
+   mvn exec:java
 
 

@@ -1,11 +1,11 @@
-package controller;
+package com.reflectionsoftware.controller;
 
 import java.util.List;
 import javax.tools.Diagnostic;
 import javax.tools.JavaFileObject;
 
-import model.CompilationResult;
-import model.Student;
+import com.reflectionsoftware.model.CompilationResult;
+import com.reflectionsoftware.model.Student;
 
 // Controlador responsável por gerar relatórios para os alunos após a correção de suas provas.
 public class ReportController {

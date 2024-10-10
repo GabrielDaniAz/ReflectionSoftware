@@ -1,11 +1,11 @@
-package controller;
+package com.reflectionsoftware.controller;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import model.Student;
+import com.reflectionsoftware.model.Student;
 
 // Responsável por criar objetos Student a partir de um mapa de arquivos.
 public class StudentController {

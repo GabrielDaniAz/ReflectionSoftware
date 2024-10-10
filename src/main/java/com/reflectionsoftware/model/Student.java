@@ -1,4 +1,4 @@
-package model;
+package com.reflectionsoftware.model;
 
 import java.io.File;
 import java.util.ArrayList;

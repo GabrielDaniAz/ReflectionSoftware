@@ -1,10 +1,10 @@
-package controller;
+package com.reflectionsoftware.controller;
 
 import java.io.File;
 import java.util.List;
 import java.util.Map;
 
-import model.Student;
+import com.reflectionsoftware.model.Student;
 
 // Controla o fluxo do software, orquestrando os serviços necessários para buscar os arquivos dos alunos, instanciar objetos Student, e iniciar a correção.
 public class AppController {

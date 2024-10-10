@@ -1,12 +1,12 @@
-package controller;
-
-import model.CompilationResult;
-import model.Student;
-import service.CompilationService;
-import service.ReflectionAnalysisService;
+package com.reflectionsoftware.controller;
 
 import java.io.File;
 import java.util.List;
+
+import com.reflectionsoftware.model.CompilationResult;
+import com.reflectionsoftware.model.Student;
+import com.reflectionsoftware.service.CompilationService;
+import com.reflectionsoftware.service.ReflectionAnalysisService;
 
 // Controlador responsável por orquestrar a correção de múltiplos alunos.
 public class CorrectionController {

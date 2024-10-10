@@ -1,4 +1,4 @@
-package service;
+package com.reflectionsoftware.service;
 
 import java.io.File;
 import java.net.URL;
