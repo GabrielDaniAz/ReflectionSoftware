@@ -2,7 +2,7 @@ package com.reflectionsoftware.service;
 
 import javax.tools.*;
 
-import com.reflectionsoftware.model.CompilationResult;
+import com.reflectionsoftware.model.result.compilation.CompilationResult;
 
 import java.io.File;
 import java.io.IOException;

@@ -13,6 +13,17 @@
             <artifactId>gson</artifactId>
             <version>2.10.1</version> <!-- Verifique se há uma versão mais recente se necessário -->
         </dependency>
+        <dependency>
+            <groupId>com.itextpdf</groupId>
+            <artifactId>itext7-core</artifactId>
+            <version>8.0.2</version>
+            <type>pom</type>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-simple</artifactId>
+            <version>1.7.36</version>
+        </dependency>
     </dependencies>
 
     <build>
@@ -24,13 +35,12 @@
                 <configuration>
                     <mainClass>com.reflectionsoftware.Main</mainClass>
                     <arguments>
-                        <argument>C:/Users/gabri/Dev/ProvasAlunos</argument>
+                        <argument>C:/Users/gabri/Dev/ProvasJson</argument>
                         <argument>C:/Users/gabri/Dev/jsonTest.json</argument>
+                        <argument>C:/Users/gabri/OneDrive/Área de Trabalho/PDFsTest</argument>
                     </arguments>
                 </configuration>
             </plugin>
         </plugins>
     </build>
-
-
 </project>

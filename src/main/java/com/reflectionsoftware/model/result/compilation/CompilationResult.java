@@ -1,4 +1,4 @@
-package com.reflectionsoftware.model;
+package com.reflectionsoftware.model.result.compilation;
 
 import java.io.File;
 import javax.tools.Diagnostic;

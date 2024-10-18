@@ -1,8 +1,9 @@
 package com.reflectionsoftware.model;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.List;
+
+import com.reflectionsoftware.model.result.Result;
 
 /**
  * Representa um aluno com informações como nome, diretório raiz, arquivos submetidos, 
@@ -13,8 +14,7 @@ public class Student {
     private String name;
     private File rootDirectory;
     private List<File> submittedFiles;
-    private List<String> reflectionResults;
-    private CompilationResult compilationResult;
+    private Result result;
 
     /**
      * Construtor da classe Student.
@@ -26,7 +26,6 @@ public class Student {
         this.rootDirectory = rootDirectory;
         this.submittedFiles = submittedFiles;
         this.name = rootDirectory.getName();  // O nome do aluno é derivado do nome da pasta
-        this.reflectionResults = new ArrayList<>();
     }
 
     /**
@@ -66,12 +65,12 @@ public class Student {
     }
 
     /**
-     * Retorna a lista de resultados de reflexão obtidos após a análise das classes.
+     * Retorna resultado obtidos após a compilação e análise das classes.
      * 
-     * @return Lista de resultados da reflexão {@link String}.
+     * @return Resultados da correção.
      */
-    public List<String> getReflectionResults() {
-        return reflectionResults;
+    public Result getResult() {
+        return result;
     }
 
     /**
@@ -79,26 +78,8 @@ public class Student {
      * 
      * @param reflectionResults A nova lista de resultados de reflexão.
      */
-    public void setReflectionResults(List<String> reflectionResults) {
-        this.reflectionResults = reflectionResults;
-    }
-
-    /**
-     * Retorna o resultado da compilação dos arquivos submetidos pelo aluno.
-     * 
-     * @return Resultado da compilação {@link CompilationResult}.
-     */
-    public CompilationResult getCompilationResult() {
-        return compilationResult;
-    }
-
-    /**
-     * Define o resultado da compilação para os arquivos submetidos pelo aluno.
-     * 
-     * @param compilationResult O novo resultado de compilação.
-     */
-    public void setCompilationResult(CompilationResult compilationResult) {
-        this.compilationResult = compilationResult;
+    public void setResult(Result result) {
+        this.result = result;
     }
 
     /**
