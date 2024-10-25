@@ -38,30 +38,12 @@ public class Student {
     }
 
     /**
-     * Define um novo nome para o aluno.
-     * 
-     * @param name O novo nome do aluno.
-     */
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    /**
      * Retorna a lista de arquivos submetidos pelo aluno.
      * 
      * @return Lista de arquivos submetidos {@link File}.
      */
     public List<File> getSubmittedFiles() {
         return submittedFiles;
-    }
-
-    /**
-     * Define a lista de arquivos submetidos pelo aluno.
-     * 
-     * @param submittedFiles A nova lista de arquivos submetidos.
-     */
-    public void setSubmittedFiles(List<File> submittedFiles) {
-        this.submittedFiles = submittedFiles;
     }
 
     /**
@@ -73,22 +55,8 @@ public class Student {
         return result;
     }
 
-    /**
-     * Define a lista de resultados de reflexão após a análise.
-     * 
-     * @param reflectionResults A nova lista de resultados de reflexão.
-     */
     public void setResult(Result result) {
         this.result = result;
-    }
-
-    /**
-     * Adiciona um novo arquivo à lista de arquivos submetidos pelo aluno.
-     * 
-     * @param file Arquivo a ser adicionado.
-     */
-    public void addSubmittedFile(File file) {
-        this.submittedFiles.add(file);
     }
 
     /**

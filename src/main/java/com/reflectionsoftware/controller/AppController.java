@@ -1,21 +1,17 @@
 package com.reflectionsoftware.controller;
 
-import java.io.File;
-import java.util.List;
-import java.util.Map;
+import java.io.IOException;
 
 import com.reflectionsoftware.model.Student;
-import com.reflectionsoftware.service.CompilationService;
-import com.reflectionsoftware.service.CorrectionCriteriaManager;
-import com.reflectionsoftware.service.ReflectionService;
+import com.reflectionsoftware.model.result.Result;
+import com.reflectionsoftware.model.result.reflection.CorrectionResult;
 
 // Controla o fluxo do software, orquestrando os serviços necessários para buscar os arquivos dos alunos, instanciar objetos Student, e iniciar a correção.
 public class AppController {
-
-    private FileController fileController;
-    private StudentController studentController;
-    private CorrectionController correctionController;
-    private String outputPdfPath;
+    private String rootDirectory;
+    private String jsonFilePath;
+    private String outputPdfFilePath;
+    private String correctionStep;
 
     /**
      * Construtor da classe AppController.
@@ -25,14 +21,13 @@ public class AppController {
      * @param rootDirectory O caminho do diretório raiz onde os arquivos dos alunos estão localizados.
      * @param jsonFilePath O caminho do arquivo JSON que contém os critérios de correção.
      * @param outputPdfPath O caminho onde o relatório em PDF deve ser salvo.
+     * @throws IOException 
      */
-    public AppController(String rootDirectory, String jsonFilePath, String outputPdfPath) {
-        // Usando JsonConverter para ler o arquivo JSON
-        CorrectionCriteriaManager.fromJson(jsonFilePath);
-
-        fileController = new FileController(rootDirectory);
-
-        this.outputPdfPath = outputPdfPath;
+    public AppController(String rootDirectory, String jsonFilePath, String outputPdfFilePath, String correctionStep) {
+        this.rootDirectory = rootDirectory;
+        this.jsonFilePath = jsonFilePath;
+        this.outputPdfFilePath = outputPdfFilePath;
+        this.correctionStep = correctionStep;
     }
 
     /**
@@ -47,19 +42,28 @@ public class AppController {
      * @throws Exception Se ocorrer algum erro durante o processo de correção.
      */
     public void start() throws Exception {
+        // 1. Obter o critério de correção recebido pelo JSON
+        new CriteriaManager(jsonFilePath, correctionStep);
+
         // 1. Obter arquivos .java dos alunos
-        Map<File, List<File>> javaFilesFromDirectory = fileController.getJavaFilesFromDirectory();
+        FileController fileController = new FileController(rootDirectory);
 
         // 2. Criar objetos Student
-        studentController = new StudentController(javaFilesFromDirectory);        
-        List<Student> students = studentController.getStudents();
+        StudentController studentController = new StudentController(fileController.getJavaFilesFromDirectory());
 
         // 3. Iniciar a correção para os alunos
-        correctionController = new CorrectionController(students, new CompilationService(), new ReflectionService());
-        correctionController.startCorrection();
+        new CorrectionController(studentController.getStudents());
+
+        // Teste
+        for (Student student : studentController.getStudents()) {
+            System.out.println("Aluno: " + student.getName());
+            Result r = student.getResult();
+            for (CorrectionResult result : r.getReflectionResult().getCorrectionResults()) {
+                System.out.println(result.toString());
+            }
+        }
 
         // 4. Gerar relatório em PDF
-        PdfController pdf = new PdfController(students, outputPdfPath);
-        pdf.startReports();
+        new PdfController(studentController.getStudents(), outputPdfFilePath);
     }
 }

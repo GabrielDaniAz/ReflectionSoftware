@@ -1,70 +1,119 @@
 package com.reflectionsoftware.model.criteria;
 
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.List;
 
+import com.google.gson.annotations.SerializedName;
+
 /**
- * Classe que representa critérios de correção específicos para uma classe em particular.
+ * A classe {@code CriteriaByClass} representa os critérios de correção
+ * para uma classe específica dentro de um exercício.
+ * Ela contém informações sobre a classe, suas especificações de atributos,
+ * construtores e métodos, além de listas desses elementos.
  */
 public class CriteriaByClass {
-    private String nome_da_classe; // Nome da classe
-    private Integer numero_de_atributos; // Número de atributos definidos
-    private List<Attribute> atributos; // Lista de atributos da classe
+
+    @SerializedName("nome_da_classe")
+    private String className;
+
+    @SerializedName("especificacao_atributos")
+    private String attributesSpecification;
+
+    @SerializedName("especificacao_construtores")
+    private String constructorsSpecification;
+
+    @SerializedName("especificacao_metodos")
+    private String methodsSpecification;
+
+    @SerializedName("atributos")
+    private List<CriteriaField> attributes;
+
+    @SerializedName("construtores")
+    private List<CriteriaConstructor> constructors;
+
+    @SerializedName("metodos")
+    private List<CriteriaMethod> methods;
 
     /**
-     * Obtém o nome da classe.
-     *
-     * @return O nome da classe.
+     * Retorna o nome da classe.
+     * 
+     * @return o nome da classe ou "Classe não especificada" se o nome for nulo.
      */
     public String getClassName() {
-        return nome_da_classe;
+        return (className != null) ? className : "Classe não especificada";
     }
 
     /**
-     * Define o nome da classe.
-     *
-     * @param className O nome a ser atribuído à classe.
+     * Retorna a especificação dos atributos.
+     * 
+     * @return a especificação de atributos ou "minima" se a especificação for nula.
      */
-    public void setClassName(String className) {
-        this.nome_da_classe = className;
+    public String getAttributesSpecification() {
+        return (attributesSpecification != null) ? attributesSpecification : "minima";
     }
 
     /**
-     * Obtém o número de atributos.
-     *
-     * @return O número de atributos definidos, ou o tamanho da lista de atributos se não estiver definido.
+     * Retorna a especificação dos construtores.
+     * 
+     * @return a especificação de construtores ou "minima" se a especificação for nula.
      */
-    public Integer getNumberOfAttributes() {
-        // Retorna o número de atributos definido, se existir
-        // Se não existir, retorna o tamanho de atributos, se não for nulo, ou 0
-        return numero_de_atributos != null ? numero_de_atributos : (atributos != null ? atributos.size() : 0);
+    public String getConstructorsSpecification() {
+        return (constructorsSpecification != null) ? constructorsSpecification : "minima";
     }
 
     /**
-     * Define o número de atributos.
-     *
-     * @param numberOfAttributes O número a ser atribuído aos atributos da classe.
+     * Retorna a especificação dos métodos.
+     * 
+     * @return a especificação de métodos ou "minima" se a especificação for nula.
      */
-    public void setNumberOfAttributes(Integer numberOfAttributes) {
-        this.numero_de_atributos = numberOfAttributes;
+    public String getMethodsSpecification() {
+        return (methodsSpecification != null) ? methodsSpecification : "minima";
     }
 
     /**
-     * Obtém a lista de atributos.
-     *
-     * @return A lista de atributos, ou uma lista vazia se for nula.
+     * Retorna a lista de atributos.
+     * 
+     * @return a lista de atributos ou uma lista vazia se a lista for nula.
      */
-    public List<Attribute> getAttributes() {
-        // Retorna a lista de atributos ou uma lista vazia se for nula
-        return atributos != null ? atributos : Collections.emptyList();
+    public List<CriteriaField> getAttributes() {
+        return (attributes != null) ? attributes : new ArrayList<>();
     }
 
     /**
-     * Define a lista de atributos.
-     *
-     * @param attributes A lista de atributos a ser atribuída.
+     * Retorna a lista de construtores.
+     * 
+     * @return a lista de construtores ou uma lista vazia se a lista for nula.
      */
-    public void setAttributes(List<Attribute> attributes) {
-        this.atributos = attributes;
+    public List<CriteriaConstructor> getConstructors() {
+        return (constructors != null) ? constructors : new ArrayList<>();
+    }
+
+    /**
+     * Retorna a lista de métodos.
+     * 
+     * @return a lista de métodos ou uma lista vazia se a lista for nula.
+     */
+    public List<CriteriaMethod> getMethods() {
+        return (methods != null) ? methods : new ArrayList<>();
+    }
+
+    /**
+     * Retorna uma representação em formato JSON desta instância de {@code CriteriaByClass}.
+     * 
+     * @return uma {@code String} contendo a representação JSON dos critérios da classe.
+     */
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("{");
+        sb.append("\"nome_da_classe\": \"").append(getClassName()).append("\",");
+        sb.append("\"especificacao_atributos\": \"").append(getAttributesSpecification()).append("\",");
+        sb.append("\"especificacao_construtores\": \"").append(getConstructorsSpecification()).append("\",");
+        sb.append("\"especificacao_metodos\": \"").append(getMethodsSpecification()).append("\",");
+        sb.append("\"atributos\": ").append(getAttributes()).append(",");
+        sb.append("\"construtores\": ").append(getConstructors()).append(",");
+        sb.append("\"metodos\": ").append(getMethods());
+        sb.append("}");
+        return sb.toString();
     }
 }

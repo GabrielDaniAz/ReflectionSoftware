@@ -26,10 +26,11 @@ public class CorrectionController {
      * @param compilationService O serviço de compilação que será utilizado.
      * @param reflectionService O serviço de reflexão que será utilizado.
      */
-    public CorrectionController(List<Student> students, CompilationService compilationService, ReflectionService reflectionService) {
+    public CorrectionController(List<Student> students) {
         this.students = students;
-        this.compilationService = compilationService;
-        this.reflectionService = reflectionService;
+        compilationService = new CompilationService();
+        reflectionService = new ReflectionService();
+        startCorrection();
     }
 
     /**

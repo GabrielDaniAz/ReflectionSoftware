@@ -12,11 +12,12 @@ public class Main {
         }
 
         String rootDirectory = args[0];  // Usa o primeiro argumento como diretório
-        String jsonFilePath = args[1];    // Usa o segundo argumento como caminho do JSON
-        String outputPdfPath = args[2];    // Usa o terceiro argumento como caminho do PDF de saída
+        String jsonFilePath = args[1];   // Usa o segundo argumento como caminho do JSON
+        String outputPdfPath = args[2];  // Usa o terceiro argumento como caminho do PDF de saída
+        String correctionStep = args[3]; // Usa o quarto argumento como o passo limite para a correção
 
         // Inicializa o AppController com o diretório
-        app = new AppController(rootDirectory, jsonFilePath, outputPdfPath);
+        app = new AppController(rootDirectory, jsonFilePath, outputPdfPath, correctionStep);
         app.start();
     }
 }

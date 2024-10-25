@@ -11,11 +11,11 @@
         <dependency>
             <groupId>com.google.code.gson</groupId>
             <artifactId>gson</artifactId>
-            <version>2.10.1</version> <!-- Verifique se há uma versão mais recente se necessário -->
+            <version>2.10.1</version>
         </dependency>
         <dependency>
             <groupId>com.itextpdf</groupId>
-            <artifactId>itext7-core</artifactId>
+            <artifactId>itext-core</artifactId>
             <version>8.0.2</version>
             <type>pom</type>
         </dependency>
@@ -38,6 +38,7 @@
                         <argument>C:/Users/gabri/Dev/ProvasJson</argument>
                         <argument>C:/Users/gabri/Dev/jsonTest.json</argument>
                         <argument>C:/Users/gabri/OneDrive/Área de Trabalho/PDFsTest</argument>
+                        <argument>passo_1</argument>
                     </arguments>
                 </configuration>
             </plugin>

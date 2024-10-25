@@ -14,6 +14,7 @@ import com.itextpdf.layout.element.Table;
 import com.itextpdf.layout.properties.UnitValue;
 
 import java.io.File;
+import java.util.Map;
 import java.io.IOException;
 import java.time.LocalDate;
 import javax.tools.Diagnostic;
@@ -22,8 +23,7 @@ import javax.tools.JavaFileObject;
 import com.reflectionsoftware.model.Student;
 import com.reflectionsoftware.model.result.Result;
 import com.reflectionsoftware.model.result.compilation.CompilationResult;
-import com.reflectionsoftware.model.result.reflection.ReflectionClassAnalyses;
-import com.reflectionsoftware.model.result.reflection.ReflectionResult;
+import com.reflectionsoftware.model.result.reflection.CorrectionResult;
 
 // Controlador responsável pela geração de relatórios em PDF para os alunos.
 public class PdfController {
@@ -53,6 +53,7 @@ public class PdfController {
     public PdfController(java.util.List<Student> students, String outputDirectory) throws IOException {
         this.students = students;
         this.outputDirectory = outputDirectory;
+        startReports();
     }
 
     /**
@@ -125,7 +126,7 @@ public class PdfController {
             // Geração dos relatórios de compilação e reflexão
             Result result = student.getResult();
             generateCompilationReport(document, result.getCompilationResult());
-            generateReflectionReport(document, result.getReflectionResult());
+            generateReflectionReport(document, result.getReflectionResult().getCorrectionResults());
     
         } catch (IOException e) {
             System.err.println("Erro ao criar relatório para o aluno " + student.getName() + ": " + e.getMessage());
@@ -186,23 +187,71 @@ public class PdfController {
      * Este método adiciona os resultados da análise de reflexão ao documento.
      *
      * @param document O documento PDF ao qual o relatório de reflexão será adicionado.
-     * @param reflectionResult O resultado da análise de reflexão que contém informações sobre as classes analisadas.
+     * @param results A lista de resultados da correção que contém informações sobre as classes analisadas.
      */
-    private void generateReflectionReport(Document document, ReflectionResult reflectionResult) {
+    private void generateReflectionReport(Document document, java.util.List<CorrectionResult> results) {
         document.add(new Paragraph(REFLECTION_RESULT_TITLE)
                 .setFontSize(14)
                 .setBold()
                 .setMarginBottom(10));
 
-        if (reflectionResult != null) {
-            for (ReflectionClassAnalyses rfl : reflectionResult.getReflectionClassAnalyses()) {
-                document.add(new Paragraph(rfl.performCorrection().toString()));
+        if (results != null && !results.isEmpty()) {
+            for (CorrectionResult result : results) {
+                document.add(new Paragraph("Passo: " + result.getStep())
+                        .setBold()
+                        .setFontSize(12)
+                        .setMarginBottom(5));
+
+                // Exibir erros e sucessos dos atributos
+                addSectionToDocument(document, "Atributos com Erros", result.getAttributesErrors());
+                addSectionToDocument(document, "Atributos com Sucessos", result.getAttributesSuccesses());
+
+                // Exibir erros e sucessos dos métodos
+                addSectionToDocument(document, "Métodos com Erros", result.getMethodsErrors());
+                addSectionToDocument(document, "Métodos com Sucessos", result.getMethodsSuccesses());
+
+                // Exibir erros e sucessos dos construtores
+                addSectionToDocument(document, "Construtores com Erros", result.getConstructorsErrors());
+                addSectionToDocument(document, "Construtores com Sucessos", result.getConstructorsSuccesses());
+
+                // Exibir o resumo da correção
+                document.add(new Paragraph("Resumo da Correção:").setBold());
+                for (Map.Entry<String, String> entry : result.getResume().entrySet()) {
+                    document.add(new Paragraph("Classe: " + entry.getKey()));
+                    document.add(new Paragraph("Resumo: " + entry.getValue()).setItalic());
+                }
+
+                document.add(new Paragraph("\n")); // Quebra de linha após cada bloco de correção
             }
         } else {
             document.add(new Paragraph(NO_REFLECTION_RESULT_MSG)
                     .setItalic()
                     .setMarginBottom(10));
         }
-        document.add(new Paragraph("\n")); // Quebra de linha
     }
+
+    /**
+     * Adiciona uma seção de erros ou sucessos ao documento PDF.
+     *
+     * @param document O documento PDF.
+     * @param sectionTitle O título da seção (ex: "Atributos com Erros").
+     * @param messages O mapa contendo as classes e suas respectivas mensagens de erro ou sucesso.
+     */
+    private void addSectionToDocument(Document document, String sectionTitle, Map<String, java.util.List<String>> messages) {
+        document.add(new Paragraph(sectionTitle).setBold());
+
+        if (messages.isEmpty()) {
+            document.add(new Paragraph("Nenhum encontrado.").setItalic());
+        } else {
+            for (Map.Entry<String, java.util.List<String>> entry : messages.entrySet()) {
+                document.add(new Paragraph("Classe: " + entry.getKey()));
+                for (String message : entry.getValue()) {
+                    document.add(new Paragraph("  - " + message));
+                }
+            }
+        }
+
+        document.add(new Paragraph("\n")); // Quebra de linha após a seção
+    }
+
 }
