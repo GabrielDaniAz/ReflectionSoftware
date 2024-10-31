@@ -1,26 +1,35 @@
 package com.reflectionsoftware.service;
 
 import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
+import com.reflectionsoftware.model.criteria.Criteria;
+
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-import java.lang.reflect.Type;
-import com.reflectionsoftware.model.criteria.CriteriaCorrection;
 
 public class JsonConverterService {
 
-    private Gson gson;
+    private static final Gson GSON = new Gson();
 
-    public JsonConverterService() {
-        this.gson = new Gson();
+    // Método para converter JSON de um arquivo em um objeto Criteria
+    public Criteria convertJsonToObject(String jsonFilePath) throws FileNotFoundException, IOException  {
+        try (FileReader reader = new FileReader(jsonFilePath);
+             BufferedReader br = new BufferedReader(reader)) {
+            String jsonContent = preprocessJson(br);
+            return GSON.fromJson(jsonContent, Criteria.class);
+        }
     }
 
-    // Método para converter JSON de um arquivo em um objeto Exercicio
-    public CriteriaCorrection convertJsonToObject(String jsonFilePath) throws IOException {
-        try (FileReader reader = new FileReader(jsonFilePath)) {
-            // Definindo o tipo Exercicio
-            Type type = new TypeToken<CriteriaCorrection>() {}.getType();
-            return gson.fromJson(reader, type);
+    private String preprocessJson(BufferedReader br) throws IOException {
+        StringBuilder jsonContent = new StringBuilder();
+        String line;
+        while ((line = br.readLine()) != null) {
+            if (!line.trim().isEmpty()) {
+                jsonContent.append(line).append(System.lineSeparator());
+            }
         }
+
+        return jsonContent.toString();
     }
 }

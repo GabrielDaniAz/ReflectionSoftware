@@ -38,7 +38,7 @@
                         <argument>C:/Users/gabri/Dev/ProvasJson</argument>
                         <argument>C:/Users/gabri/Dev/jsonTest.json</argument>
                         <argument>C:/Users/gabri/OneDrive/Área de Trabalho/PDFsTest</argument>
-                        <argument>passo_1</argument>
+                        <argument>1</argument>
                     </arguments>
                 </configuration>
             </plugin>

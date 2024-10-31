@@ -1,7 +1,7 @@
 package com.reflectionsoftware.model.result;
 
 import com.reflectionsoftware.model.result.compilation.CompilationResult;
-import com.reflectionsoftware.model.result.reflection.ReflectionResult;
+import com.reflectionsoftware.model.result.reflectionResult.ReflectionResult;
 
 /**
  * Classe que representa o resultado de operações de compilação e reflexão.

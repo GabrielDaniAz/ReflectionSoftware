@@ -2,32 +2,22 @@ package com.reflectionsoftware.controller;
 
 import java.io.IOException;
 
-import com.reflectionsoftware.model.Student;
-import com.reflectionsoftware.model.result.Result;
-import com.reflectionsoftware.model.result.reflection.CorrectionResult;
+import com.reflectionsoftware.model.criteria.Criteria;
+import com.reflectionsoftware.service.CompilationService;
+import com.reflectionsoftware.service.ReflectionService;
 
 // Controla o fluxo do software, orquestrando os serviços necessários para buscar os arquivos dos alunos, instanciar objetos Student, e iniciar a correção.
 public class AppController {
     private String rootDirectory;
     private String jsonFilePath;
     private String outputPdfFilePath;
-    private String correctionStep;
+    private int untilStep;
 
-    /**
-     * Construtor da classe AppController.
-     * 
-     * Este construtor inicializa os controladores necessários e carrega os critérios de correção a partir de um arquivo JSON.
-     * 
-     * @param rootDirectory O caminho do diretório raiz onde os arquivos dos alunos estão localizados.
-     * @param jsonFilePath O caminho do arquivo JSON que contém os critérios de correção.
-     * @param outputPdfPath O caminho onde o relatório em PDF deve ser salvo.
-     * @throws IOException 
-     */
-    public AppController(String rootDirectory, String jsonFilePath, String outputPdfFilePath, String correctionStep) {
+    public AppController(String rootDirectory, String jsonFilePath, String outputPdfFilePath, int untilStep) {
         this.rootDirectory = rootDirectory;
         this.jsonFilePath = jsonFilePath;
         this.outputPdfFilePath = outputPdfFilePath;
-        this.correctionStep = correctionStep;
+        this.untilStep = untilStep;
     }
 
     /**
@@ -43,7 +33,7 @@ public class AppController {
      */
     public void start() throws Exception {
         // 1. Obter o critério de correção recebido pelo JSON
-        new CriteriaManager(jsonFilePath, correctionStep);
+        Criteria criteria = new CriteriaManager(jsonFilePath, untilStep).getCriteria();
 
         // 1. Obter arquivos .java dos alunos
         FileController fileController = new FileController(rootDirectory);
@@ -52,18 +42,9 @@ public class AppController {
         StudentController studentController = new StudentController(fileController.getJavaFilesFromDirectory());
 
         // 3. Iniciar a correção para os alunos
-        new CorrectionController(studentController.getStudents());
+        new CorrectionController(studentController.getStudents(), new CompilationService(), new ReflectionService(criteria));
 
-        // Teste
-        for (Student student : studentController.getStudents()) {
-            System.out.println("Aluno: " + student.getName());
-            Result r = student.getResult();
-            for (CorrectionResult result : r.getReflectionResult().getCorrectionResults()) {
-                System.out.println(result.toString());
-            }
-        }
-
-        // 4. Gerar relatório em PDF
-        new PdfController(studentController.getStudents(), outputPdfFilePath);
+        // // 4. Gerar relatório em PDF
+        // new PdfController(studentController.getStudents(), outputPdfFilePath);
     }
 }

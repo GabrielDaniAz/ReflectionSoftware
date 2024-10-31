@@ -3,18 +3,18 @@ package com.reflectionsoftware.controller;
 import java.io.File;
 import java.io.IOException;
 import com.google.gson.JsonParseException;
-import com.reflectionsoftware.model.criteria.CriteriaCorrection;
+import com.reflectionsoftware.model.criteria.Criteria;
 import com.reflectionsoftware.service.JsonConverterService;
 
 /**
  * A classe {@code CriteriaController} é responsável por controlar o processo de
  * leitura e gerenciamento dos critérios de correção a partir de um arquivo JSON.
  * Ela utiliza o serviço {@link JsonConverterService} para converter o arquivo JSON
- * em um objeto {@link CriteriaCorrection} e define o passo de correção.
+ * em um objeto {@link Criteria} e define o passo de correção.
  */
 public class CriteriaManager {
     
-    private static CriteriaCorrection criteriaCorrection;
+    private static Criteria criteria;
 
     /**
      * Constrói uma instância de {@code CriteriaController} e carrega os critérios de
@@ -25,22 +25,22 @@ public class CriteriaManager {
      * @throws IOException se houver um erro ao ler o arquivo JSON
      * @throws IllegalArgumentException se o arquivo JSON não existir ou for inválido
      */
-    public CriteriaManager(String jsonFilePath, String correctionStep) throws IOException {
+    public CriteriaManager(String jsonFilePath, int correctionStep) throws IOException {
         // Valida se o arquivo existe e se é um JSON válido
         validateJsonFile(jsonFilePath);
         // Define o passo de correção após a conversão do JSON
-        criteriaCorrection.setCorrectionStep(correctionStep);
+        criteria.filterStepsUpTo(correctionStep);
     }
 
     /**
-     * Retorna o objeto {@code criteriaCorrection} carregado. Se o objeto ainda não foi
-     * carregado, retorna uma nova instância de {@link CriteriaCorrection}.
+     * Retorna o objeto {@code criteria} carregado. Se o objeto ainda não foi
+     * carregado, retorna uma nova instância de {@link Criteria}.
      *
-     * @return o objeto {@link CriteriaCorrection}, ou uma nova instância se o atual for nulo
+     * @return o objeto {@link Criteria}, ou uma nova instância se o atual for nulo
      */
-    public static CriteriaCorrection getCriteriaCorrection() {
-        // Garante que um objeto criteriaCorrection válido seja retornado
-        return (criteriaCorrection != null) ? criteriaCorrection : new CriteriaCorrection();
+    public Criteria getCriteria() {
+        // Garante que um objeto criteria válido seja retornado
+        return (criteria != null) ? criteria : new Criteria();
     }
 
     /**
@@ -79,7 +79,7 @@ public class CriteriaManager {
         JsonConverterService jsonConverterService = new JsonConverterService();
         try {
             // Tenta converter o JSON para verificar se está no formato correto
-            criteriaCorrection = jsonConverterService.convertJsonToObject(jsonFilePath);
+            criteria = jsonConverterService.convertJsonToObject(jsonFilePath);
         } catch (JsonParseException e) {
             throw new IllegalArgumentException("O arquivo não é um JSON válido: " + jsonFilePath, e);
         }
