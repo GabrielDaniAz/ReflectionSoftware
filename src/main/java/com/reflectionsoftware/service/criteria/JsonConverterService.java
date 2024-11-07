@@ -1,4 +1,4 @@
-package com.reflectionsoftware.service;
+package com.reflectionsoftware.service.criteria;
 
 import com.google.gson.Gson;
 import com.reflectionsoftware.model.criteria.Criteria;
@@ -13,7 +13,7 @@ public class JsonConverterService {
     private static final Gson GSON = new Gson();
 
     // Método para converter JSON de um arquivo em um objeto Criteria
-    public Criteria convertJsonToObject(String jsonFilePath) throws FileNotFoundException, IOException  {
+    public static Criteria convertJsonToObject(String jsonFilePath) throws FileNotFoundException, IOException  {
         try (FileReader reader = new FileReader(jsonFilePath);
              BufferedReader br = new BufferedReader(reader)) {
             String jsonContent = preprocessJson(br);
@@ -21,7 +21,7 @@ public class JsonConverterService {
         }
     }
 
-    private String preprocessJson(BufferedReader br) throws IOException {
+    private static String preprocessJson(BufferedReader br) throws IOException {
         StringBuilder jsonContent = new StringBuilder();
         String line;
         while ((line = br.readLine()) != null) {

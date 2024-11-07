@@ -1,4 +1,4 @@
-package com.reflectionsoftware.service;
+package com.reflectionsoftware.service.file;
 
 import java.io.File;
 import java.net.URL;
@@ -8,13 +8,13 @@ import java.util.List;
 
 public class ClassFileLoader {
        
-    public static List<Class<?>> loadClasses(List<File> compiledClassFiles, File outputDir) throws Exception {
+    public static List<Class<?>> loadClasses(File rootDirectory, List<File> compiledClassFiles) throws Exception {
         List<Class<?>> classes = new ArrayList<>();
-        URL[] urls = { outputDir.toURI().toURL() };
+        URL[] urls = { rootDirectory.toURI().toURL() };
 
         try (URLClassLoader classLoader = new URLClassLoader(urls)) {
             for (File classFile : compiledClassFiles) {
-                String className = extractClassName(classFile, outputDir);
+                String className = extractClassName(classFile, rootDirectory);
                 classes.add(classLoader.loadClass(className));
             }
         }
@@ -22,9 +22,9 @@ public class ClassFileLoader {
         return classes;
     }
 
-    private static String extractClassName(File classFile, File outputDir) {
+    private static String extractClassName(File classFile, File rootDirectory) {
         return classFile.getAbsolutePath()
-                .replace(outputDir.getAbsolutePath() + File.separator, "")
+                .replace(rootDirectory.getAbsolutePath() + File.separator, "")
                 .replace(".class", "")
                 .replace(File.separator, ".");
     }

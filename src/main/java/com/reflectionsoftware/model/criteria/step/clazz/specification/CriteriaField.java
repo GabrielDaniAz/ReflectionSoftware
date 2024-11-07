@@ -23,7 +23,7 @@ public class CriteriaField {
         return (type != null) ? type : "Tipo não especificado";
     }
 
-    public boolean getIsFinal() {
+    public boolean isFinal() {
         return (isFinal != null) ? isFinal : false;
     }
 
@@ -31,6 +31,6 @@ public class CriteriaField {
     public String toString() {
         return "{ \"nome\": \"" + getName() + "\", " +
             "\"tipo\": \"" + getType() + "\", " +
-            "\"final\": " + getIsFinal() + " }";
+            "\"final\": " + isFinal() + " }";
     }
 }

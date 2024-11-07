@@ -1,11 +1,16 @@
 package com.reflectionsoftware.model.criteria.step.clazz;
 
+import java.util.List;
+import java.util.ArrayList;
+import java.util.Collections;
+
 import com.google.gson.annotations.SerializedName;
 import com.reflectionsoftware.model.criteria.step.clazz.specification.CriteriaConstructor;
 import com.reflectionsoftware.model.criteria.step.clazz.specification.CriteriaField;
 import com.reflectionsoftware.model.criteria.step.clazz.specification.CriteriaMethod;
 
 public class CriteriaClazz {
+
     @SerializedName("nome_da_classe")
     private String clazzName;
 
@@ -19,15 +24,18 @@ public class CriteriaClazz {
     private String methodSpecification;
 
     @SerializedName("atributos")
-    private CriteriaField[] fields;
+    private List<CriteriaField> fields;
 
     @SerializedName("construtores")
-    private CriteriaConstructor[] constructors;
+    private List<CriteriaConstructor> constructors;
 
     @SerializedName("metodos")
-    private CriteriaMethod[] methods;
+    private List<CriteriaMethod> methods;
 
     public CriteriaClazz() {
+        fields = new ArrayList<>();
+        constructors = new ArrayList<>();
+        methods = new ArrayList<>();
     }
 
     public String getClazzName() {
@@ -46,26 +54,65 @@ public class CriteriaClazz {
         return (methodSpecification != null) ? methodSpecification : "exata";
     }
 
-    public CriteriaField[] getFields(){
-        return (fields != null) ? fields : new CriteriaField[0];
+    public List<CriteriaField> getFields() {
+        return Collections.unmodifiableList(fields);
     }
 
-    public CriteriaConstructor[] getConstructors() {
-        return (constructors != null) ? constructors : new CriteriaConstructor[0];
+    public List<CriteriaConstructor> getConstructors() {
+        return Collections.unmodifiableList(constructors);
     }
-    
-    public CriteriaMethod[] getMethods() {
-        return (methods != null) ? methods : new CriteriaMethod[0];
+
+    public List<CriteriaMethod> getMethods() {
+        return Collections.unmodifiableList(methods);
+    }
+
+    public void mergeWith(CriteriaClazz newClazz) {
+        // Atualiza atributos
+        for (CriteriaField newField : newClazz.getFields()) {
+            if (!fieldExists(newField)) {
+                fields.add(newField);
+            }
+        }
+
+        // Atualiza construtores
+        for (CriteriaConstructor newConstructor : newClazz.getConstructors()) {
+            if (!constructorExists(newConstructor)) {
+                constructors.add(newConstructor);
+            }
+        }
+
+        // Atualiza métodos
+        for (CriteriaMethod newMethod : newClazz.getMethods()) {
+            if (!methodExists(newMethod)) {
+                methods.add(newMethod);
+            }
+        }
+    }
+
+    private boolean fieldExists(CriteriaField field) {
+        return fields.stream()
+                .anyMatch(existingField -> existingField.getName().equals(field.getName()));
+    }
+
+    private boolean constructorExists(CriteriaConstructor constructor) {
+        return constructors.stream()
+                .anyMatch(existingConstructor -> existingConstructor.getParameters().equals(constructor.getParameters()));
+    }
+
+    private boolean methodExists(CriteriaMethod method) {
+        return methods.stream()
+                .anyMatch(existingMethod -> existingMethod.getName().equals(method.getName())
+                        && existingMethod.getParameters().equals(method.getParameters()));
     }
 
     @Override
     public String toString() {
         return "{ \"nome_da_classe\": \"" + getClazzName() + "\", " +
-            "\"especificacao_atributos\": \"" + getAttributeSpecification() + "\", " +
-            "\"especificacao_construtores\": \"" + getConstructorSpecification() + "\", " +
-            "\"especificacao_metodos\": \"" + getMethodSpecification() + "\", " +
-            "\"atributos\": " + java.util.Arrays.toString(getFields()) + ", " +
-            "\"construtores\": " + java.util.Arrays.toString(getConstructors()) + ", " +
-            "\"metodos\": " + java.util.Arrays.toString(getMethods()) + " }";
+                "\"especificacao_atributos\": \"" + getAttributeSpecification() + "\", " +
+                "\"especificacao_construtores\": \"" + getConstructorSpecification() + "\", " +
+                "\"especificacao_metodos\": \"" + getMethodSpecification() + "\", " +
+                "\"atributos\": " + getFields() + ", " +
+                "\"construtores\": " + getConstructors() + ", " +
+                "\"metodos\": " + getMethods() + " }";
     }
 }

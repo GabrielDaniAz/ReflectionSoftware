@@ -1,31 +1,38 @@
 package com.reflectionsoftware.controller;
 
-import com.itextpdf.io.font.constants.StandardFonts;
-import com.itextpdf.kernel.font.PdfFont;
-import com.itextpdf.kernel.font.PdfFontFactory;
-import com.itextpdf.kernel.pdf.PdfDocument;
-import com.itextpdf.kernel.pdf.PdfWriter;
-import com.itextpdf.layout.Document;
-import com.itextpdf.layout.element.Paragraph;
-import com.itextpdf.layout.element.List;
-import com.itextpdf.layout.element.ListItem;
-import com.itextpdf.layout.element.Cell;
-import com.itextpdf.layout.element.Table;
-import com.itextpdf.layout.properties.UnitValue;
-
-import java.io.File;
-import java.util.Map;
-import java.io.IOException;
-import java.time.LocalDate;
-import javax.tools.Diagnostic;
-import javax.tools.JavaFileObject;
+import java.util.List;
+import java.nio.file.Paths;
 
 import com.reflectionsoftware.model.Student;
-import com.reflectionsoftware.model.result.Result;
-import com.reflectionsoftware.model.result.compilation.CompilationResult;
+import com.reflectionsoftware.service.file.FileService;
+import com.reflectionsoftware.service.pdf.PdfService;
+
+// import com.itextpdf.io.font.constants.StandardFonts;
+// import com.itextpdf.kernel.font.PdfFont;
+// import com.itextpdf.kernel.font.PdfFontFactory;
+// import com.itextpdf.kernel.pdf.PdfDocument;
+// import com.itextpdf.kernel.pdf.PdfWriter;
+// import com.itextpdf.layout.Document;
+// import com.itextpdf.layout.element.Paragraph;
+// import com.itextpdf.layout.element.List;
+// import com.itextpdf.layout.element.ListItem;
+// import com.itextpdf.layout.element.Cell;
+// import com.itextpdf.layout.element.Table;
+// import com.itextpdf.layout.properties.UnitValue;
+
+// import java.io.File;
+// import java.util.Map;
+// import java.io.IOException;
+// import java.time.LocalDate;
+// import javax.tools.Diagnostic;
+// import javax.tools.JavaFileObject;
+
+// import com.reflectionsoftware.model.Student;
+// import com.reflectionsoftware.model.result.Result;
+// import com.reflectionsoftware.model.result.compilation.CompilationResult;
 
 // Controlador responsável pela geração de relatórios em PDF para os alunos.
-public class PdfController {
+// public class PdfController {
 
     // private static final float[] TABLE_COLUMN_WIDTHS = {1, 3}; // Larguras das colunas da tabela
     // private static final String COURSE_NAME = "POO"; // Nome do curso
@@ -253,4 +260,41 @@ public class PdfController {
     //     document.add(new Paragraph("\n")); // Quebra de linha após a seção
     // }
 
+// }
+
+
+public class PdfController {
+
+    private List<Student> students;
+    private String outputPdfFilePath;
+
+    public PdfController(List<Student> students, String outputPdfFilePath) {
+        if (students == null || students.isEmpty()) {
+            throw new IllegalArgumentException("A lista de alunos não pode ser nula ou vazia.");
+        }
+        if (outputPdfFilePath == null || outputPdfFilePath.trim().isEmpty()) {
+            throw new IllegalArgumentException("O caminho do arquivo de saída não pode ser nulo ou vazio.");
+        }
+
+        this.students = students;
+        this.outputPdfFilePath = outputPdfFilePath;
+    }
+
+    public void start() {
+        for (Student student : students) {
+            String studentName = student.getName();
+            String outputFilePath = Paths.get(outputPdfFilePath, studentName + "_relatorio.pdf").toString();
+            FileService.createDirectoryIfNotExists(Paths.get(outputFilePath).getParent().toString());
+
+            try {
+                PdfService.generateCorrectionReport(studentName, student.getReflectionResult(), outputFilePath);
+                System.out.println("Relatório gerado com sucesso para o aluno: " + studentName);
+            } catch (Exception e) {
+                // Log de erro com a captura da exceção
+                System.err.println("Erro ao gerar o relatório para o aluno " + studentName + ": " + e.getMessage());
+                e.printStackTrace();
+            }
+        }
+    }
 }
+

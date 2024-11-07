@@ -1,5 +1,6 @@
-# Ignorar a pasta bin
+# Ignorar a pasta bin e template
 /bin/
+/template/
 
 # Ignorar arquivos de classe Java
 *.class
