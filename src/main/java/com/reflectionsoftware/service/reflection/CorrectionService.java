@@ -9,6 +9,8 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
 import com.reflectionsoftware.model.Professor;
+import com.reflectionsoftware.model.criteria.step.CriteriaStep;
+import com.reflectionsoftware.model.criteria.step.clazz.CriteriaClazz;
 import com.reflectionsoftware.service.compilation.CompilationService.Exercise;
 
 public class CorrectionService {
@@ -22,21 +24,31 @@ public class CorrectionService {
         ReflectionResult reflectionResult = new ReflectionResult();
 
         for (Exercise exercise : professor.getExercises()) {
-            StepResult stepResult = correctStep(exercise, studentClasses);
+            CriteriaStep criteriaStep = professor.getCriteria().getSteps().stream()
+                .filter(step -> step.getStep() == Integer.parseInt(exercise.getStep()))
+                .findFirst()
+                .orElse(null);
+
+            StepResult stepResult = correctStep(exercise, studentClasses, criteriaStep);
             reflectionResult.addStepResult(stepResult);
         }
 
         return reflectionResult;
     }
 
-    private StepResult correctStep(Exercise exercise, List<Class<?>> studentClasses) {
+    private StepResult correctStep(Exercise exercise, List<Class<?>> studentClasses, CriteriaStep criteriaStep) {
         StepResult stepResult = new StepResult(exercise.getStep());
 
         for (Class<?> professorClazz : exercise.getClasses()) {
             Class<?> studentClass = getStudentClass(professorClazz, studentClasses);
 
             if (studentClass != null) {
-                ComparisonResult comparisonResult = compareClasses(professorClazz, studentClass);
+                CriteriaClazz criteriaClazz = criteriaStep.getClazzes().stream()
+                    .filter(clazz -> clazz.getClazzName().equals(professorClazz.getSimpleName()))
+                    .findFirst()
+                    .orElse(null);
+
+                ComparisonResult comparisonResult = compareClasses(professorClazz, studentClass, criteriaClazz);
                 stepResult.addComparisonResult(comparisonResult);
             } else {
                 stepResult.addMissingClass(professorClazz.getSimpleName());
@@ -53,10 +65,10 @@ public class CorrectionService {
                 .orElse(null);
     }
 
-    private ComparisonResult compareClasses(Class<?> professorClazz, Class<?> studentClazz) {
-        List<ComparisonField> fieldComparisons = compareFields(professorClazz, studentClazz);
-        List<ComparisonMethod> methodComparisons = compareMethods(professorClazz, studentClazz);
-        List<ComparisonConstructor> constructorComparisons = compareConstructors(professorClazz, studentClazz);
+    private ComparisonResult compareClasses(Class<?> professorClazz, Class<?> studentClazz, CriteriaClazz criteriaClazz) {
+        List<ComparisonField> fieldComparisons = compareFields(professorClazz, studentClazz, criteriaClazz);
+        List<ComparisonMethod> methodComparisons = compareMethods(professorClazz, studentClazz, criteriaClazz);
+        List<ComparisonConstructor> constructorComparisons = compareConstructors(professorClazz, studentClazz, criteriaClazz);
 
         String comparisonDetail = generateComparisonDetail(fieldComparisons, methodComparisons, constructorComparisons);
 
@@ -64,7 +76,10 @@ public class CorrectionService {
                                     fieldComparisons, methodComparisons, constructorComparisons);
     }
 
-    private List<ComparisonField> compareFields(Class<?> professorClazz, Class<?> studentClazz) {
+    private List<ComparisonField> compareFields(Class<?> professorClazz, Class<?> studentClazz, CriteriaClazz criteriaClazz) {
+        // boolean isAllAttributesPrivate = professor.getCriteria().getGeneralCriteria().isAllAttributesPrivate();
+        // String attributeSpecification = criteriaClazz.getAttributeSpecification();
+
         List<ComparisonField> fieldComparisons = new ArrayList<>();
     
         for (Field professorField : professorClazz.getDeclaredFields()) {
@@ -90,19 +105,20 @@ public class CorrectionService {
         return fieldComparisons;
     }
 
-    private List<ComparisonMethod> compareMethods(Class<?> professorClazz, Class<?> studentClazz) {
+    private List<ComparisonMethod> compareMethods(Class<?> professorClazz, Class<?> studentClazz, CriteriaClazz criteriaClazz) {
+        // String methodSpecification = criteriaClazz.getMethodSpecification();
+
         List<ComparisonMethod> methodComparisons = new ArrayList<>();
     
         for (Method professorMethod : professorClazz.getDeclaredMethods()) {
             String methodName = professorMethod.getName();
-            String professorReturnTypeName = professorMethod.getReturnType().getSimpleName();  // Nome simples do tipo de retorno
+            String professorReturnTypeName = professorMethod.getReturnType().getSimpleName();
             Class<?>[] professorParamTypes = professorMethod.getParameterTypes();
     
             try {
                 Method studentMethod = studentClazz.getDeclaredMethod(methodName, professorParamTypes);
-                String studentReturnTypeName = studentMethod.getReturnType().getSimpleName();  // Nome simples do tipo de retorno
+                String studentReturnTypeName = studentMethod.getReturnType().getSimpleName();
     
-                // Compara apenas os nomes simples dos tipos de retorno
                 boolean isSameReturnType = professorReturnTypeName.equals(studentReturnTypeName);
                 String detail = isSameReturnType
                     ? "Método correto: " + methodName + " (retorno: " + professorReturnTypeName + ", parâmetros: " + formatParameterTypes(professorParamTypes) + ")"
@@ -118,7 +134,9 @@ public class CorrectionService {
         return methodComparisons;
     }
 
-    private List<ComparisonConstructor> compareConstructors(Class<?> professorClazz, Class<?> studentClazz) {
+    private List<ComparisonConstructor> compareConstructors(Class<?> professorClazz, Class<?> studentClazz, CriteriaClazz criteriaClazz) {
+        // String constructorSpecification = criteriaClazz.getConstructorSpecification();
+
         List<ComparisonConstructor> constructorComparisons = new ArrayList<>();
     
         for (Constructor<?> professorConstructor : professorClazz.getDeclaredConstructors()) {
@@ -137,14 +155,12 @@ public class CorrectionService {
         return constructorComparisons;
     }
 
-    // Método auxiliar para formatar os tipos de parâmetros
     private String formatParameterTypes(Class<?>[] parameterTypes) {
         if (parameterTypes.length == 0) return "nenhum";
         return Arrays.stream(parameterTypes)
                     .map(Class::getSimpleName)
                     .collect(Collectors.joining(", "));
     }
-    
 
     private String generateComparisonDetail(List<ComparisonField> fields, List<ComparisonMethod> methods, List<ComparisonConstructor> constructors) {
         StringBuilder detail = new StringBuilder("Detalhes da comparação:\n");
@@ -261,4 +277,3 @@ public class CorrectionService {
         public String getDetail() { return detail; }
     }
 }
-
