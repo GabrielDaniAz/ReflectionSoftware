@@ -25,8 +25,8 @@ public class AppController {
         Professor professor = PersonService.getProfessor(jsonFilePath, untilStep);
         List<Student> students = PersonService.getStudents(rootDirectory);
 
-        CorrectionService correctionService = new CorrectionService(professor);
-        CorrectionController correctionController = new CorrectionController(students, correctionService);
+        CorrectionService correctionService = new CorrectionService();
+        CorrectionController correctionController = new CorrectionController(professor, students, correctionService);
         correctionController.start();
 
         PdfController pdfController = new PdfController(students, outputPdfFilePath);

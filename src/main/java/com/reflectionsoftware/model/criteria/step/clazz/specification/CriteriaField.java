@@ -12,20 +12,18 @@ public class CriteriaField {
     @SerializedName("final")
     private Boolean isFinal;
 
-    public CriteriaField() {
-    }
+    @SerializedName("static")
+    private Boolean isStatic;
 
-    public String getName() {
-        return (name != null) ? name : "Atributo não especificado";
-    }
+    @SerializedName("nota")
+    private Integer grade;
 
-    public String getType() {
-        return (type != null) ? type : "Tipo não especificado";
-    }
-
-    public boolean isFinal() {
-        return (isFinal != null) ? isFinal : false;
-    }
+    public CriteriaField() {}
+    public String getName() { return (name != null) ? name : "Atributo não especificado"; }
+    public String getType() { return (type != null) ? type : "Tipo não especificado"; }
+    public boolean isFinal() { return (isFinal != null) ? isFinal : false; }
+    public boolean isStatic() { return (isStatic != null) ? isStatic : false; }
+    public int getGrade(){ return (grade != null) ? grade : 0; }
 
     @Override
     public String toString() {

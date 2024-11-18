@@ -6,12 +6,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import com.reflectionsoftware.model.Template;
 import com.reflectionsoftware.model.Professor;
 import com.reflectionsoftware.model.Student;
 import com.reflectionsoftware.model.criteria.Criteria;
+import com.reflectionsoftware.model.result.compilation.CompilationResult;
 import com.reflectionsoftware.service.compilation.CompilationService;
-import com.reflectionsoftware.service.compilation.CompilationService.CompilationResult;
 import com.reflectionsoftware.service.criteria.CriteriaService;
+import com.reflectionsoftware.service.file.ClassFileLoader;
 import com.reflectionsoftware.service.file.FileService;
 import com.reflectionsoftware.service.file.ReflectionClassConvert;
 
@@ -32,7 +34,16 @@ public class PersonService {
         Map<File, List<File>> javaFilesMap = FileService.getJavaFilesFromSubdirectories(BASE_DIRECTORY_CRITERIA);
 
         List<CompilationResult> compilationResults = compileJavaFiles(javaFilesMap);
-        return new Professor(compilationResults, criteria);
+
+        List<Template> exercises = new ArrayList<>();
+        for (CompilationResult compilationResult : compilationResults) {
+            if(!compilationResult.isSuccess()){
+                continue;
+            }
+            List<Class<?>> classes = ClassFileLoader.loadClasses(compilationResult.getCompilationDirectory(), compilationResult.getCompiledFiles());
+            exercises.add(new Template(compilationResult.getRootDirectory().getName(), classes));
+        }
+        return new Professor(compilationResults, exercises, criteria);
     }
 
     /* --- MÉTODOS PRIVADOS AUXILIARES --- */
@@ -52,7 +63,8 @@ public class PersonService {
 
     private static Student createStudent(Map.Entry<File, List<File>> entry) throws Exception {
         CompilationResult compilationResult = compile(entry);
-        return new Student(entry.getKey().getName(), compilationResult);
+        List<Class<?>> classes = ClassFileLoader.loadClasses(compilationResult.getCompilationDirectory(), compilationResult.getCompiledFiles());
+        return new Student(entry.getKey().getName(), compilationResult, classes);
     }
 
     private static CompilationResult compile(Map.Entry<File, List<File>> entry) throws Exception {
