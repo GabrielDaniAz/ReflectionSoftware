@@ -1,23 +1,32 @@
 package com.reflectionsoftware;
 
 import com.reflectionsoftware.controller.AppController;
+import com.reflectionsoftware.util.validator.InputValidator;
+import java.io.File;
 
 public class Main {
-    private static AppController app;
+    public static void main(String[] args) {
+        try {
+            // Validar os argumentos de entrada
+            InputValidator.validateArguments(args);
 
-    public static void main(String[] args) throws Exception {
-        // Verifica se foi passado um argumento de diretório via linha de comando
-        if (args.length < 4) {
-            throw new IllegalArgumentException("O diretório de correção, o JSON e o caminho do PDF de saída devem ser fornecidos como argumentos.");
+            // Converter as strings para objetos File
+            File templateDirectoryOrJson = new File(args[0]);
+            File studentsDirectory = new File(args[1]);
+            File pdfDirectory = new File(args[2]);
+            String stepCorrection = args[3];
+
+            // Criar e iniciar o controlador principal
+            AppController app = new AppController(templateDirectoryOrJson, studentsDirectory, pdfDirectory, stepCorrection);
+            app.start();
+
+        } catch (IllegalArgumentException e) {
+            System.err.println("Erro: " + e.getMessage());
+            System.exit(1); // Indica erro de execução
+        } catch (Exception e) {
+            System.err.println("Erro inesperado: " + e.getMessage());
+            e.printStackTrace();
+            System.exit(2); // Indica erro inesperado
         }
-
-        String rootDirectory = args[0];  // Usa o primeiro argumento como diretório
-        String jsonFilePath = args[1];   // Usa o segundo argumento como caminho do JSON
-        String outputPdfPath = args[2];  // Usa o terceiro argumento como caminho do PDF de saída
-        int correctionStep = Integer.parseInt(args[3]); // Usa o quarto argumento como o passo limite para a correção
-
-        // Inicializa o AppController com o diretório
-        app = new AppController(rootDirectory, jsonFilePath, outputPdfPath, correctionStep);
-        app.start();
     }
 }

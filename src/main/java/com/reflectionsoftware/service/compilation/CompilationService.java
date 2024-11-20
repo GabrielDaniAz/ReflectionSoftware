@@ -19,20 +19,31 @@ import com.reflectionsoftware.model.result.compilation.CompilationResult;
 public class CompilationService {
     private static final JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
 
-    public static CompilationResult compileAndLoadClasses(File rootDirectory, List<File> javaFiles) throws Exception {
+    public static CompilationResult compileClasses(File rootDirectory, List<File> javaFiles) {
         if (compiler == null) {
-            throw new IllegalStateException("Compilador Java não encontrado. Certifique-se de estar utilizando o JDK.");
+            String errorMessage = "Compilador Java não encontrado. Certifique-se de estar utilizando o JDK.";
+            System.err.println(errorMessage);
+            return new CompilationResult(errorMessage);
         }
 
         File binDirectory = new File(rootDirectory, "bin");
-        return compileJavaFiles(rootDirectory, binDirectory, javaFiles);
+        try {
+            return compileJavaFiles(rootDirectory, binDirectory, javaFiles);
+        } catch (IOException e) {
+            String errorMessage = "Erro ao tentar compilar os arquivos: " + e.getMessage();
+            System.err.println(errorMessage);
+            e.printStackTrace();
+            return new CompilationResult(errorMessage);
+        }
     }
 
-    private static CompilationResult compileJavaFiles(File rootDirectory, File compileDir, List<File> javaFiles) {
+    private static CompilationResult compileJavaFiles(File rootDirectory, File compileDir, List<File> javaFiles) throws IOException {
         DiagnosticCollector<JavaFileObject> diagnostics = new DiagnosticCollector<>();
         
         if (javaFiles.isEmpty()) {
-            return new CompilationResult("Lista `javaFiles` vazia");
+            String errorMessage = "A lista `javaFiles` está vazia.";
+            System.err.println(errorMessage);
+            return new CompilationResult(errorMessage);
         }
 
         try (StandardJavaFileManager fileManager = createFileManager(compileDir, diagnostics)) {
@@ -42,13 +53,18 @@ public class CompilationService {
             return new CompilationResult(rootDirectory, compileDir, compiledFiles, diagnostics.getDiagnostics());
             
         } catch (IOException e) {
-            return new CompilationResult("Erro ao gerenciar arquivos Java: " + e.getMessage());
+            String errorMessage = "Erro ao gerenciar arquivos Java: " + e.getMessage();
+            System.err.println(errorMessage);
+            e.printStackTrace();
+            throw e;
         }
     }
 
     private static StandardJavaFileManager createFileManager(File compileDir, DiagnosticCollector<JavaFileObject> diagnostics) throws IOException {
         if (!compileDir.exists() && !compileDir.mkdirs()) {
-            throw new IOException("Não foi possível criar o diretório de compilação: " + compileDir.getPath());
+            String errorMessage = "Não foi possível criar o diretório de compilação: " + compileDir.getPath();
+            System.err.println(errorMessage);
+            throw new IOException(errorMessage);
         }
         StandardJavaFileManager fileManager = compiler.getStandardFileManager(diagnostics, Locale.getDefault(), null);
         fileManager.setLocation(StandardLocation.CLASS_OUTPUT, Collections.singletonList(compileDir));
@@ -56,8 +72,15 @@ public class CompilationService {
     }
 
     private static boolean executeCompilation(Iterable<? extends JavaFileObject> compilationUnits, StandardJavaFileManager fileManager, DiagnosticCollector<JavaFileObject> diagnostics) {
-        JavaCompiler.CompilationTask task = compiler.getTask(null, fileManager, diagnostics, null, null, compilationUnits);
-        return task.call();
+        try {
+            JavaCompiler.CompilationTask task = compiler.getTask(null, fileManager, diagnostics, null, null, compilationUnits);
+            return task.call();
+        } catch (Exception e) {
+            String errorMessage = "Erro durante a execução da compilação: " + e.getMessage();
+            System.err.println(errorMessage);
+            e.printStackTrace();
+            return false;
+        }
     }
 
     private static List<File> getCompiledFilePaths(File compileDir, List<File> javaFiles) {
@@ -66,4 +89,3 @@ public class CompilationService {
                 .collect(Collectors.toList());
     }
 }
-

@@ -24,6 +24,12 @@
             <artifactId>slf4j-simple</artifactId>
             <version>1.7.36</version>
         </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>2.15.2</version>
+        </dependency>
+
     </dependencies>
 
     <build>
@@ -35,8 +41,8 @@
                 <configuration>
                     <mainClass>com.reflectionsoftware.Main</mainClass>
                     <arguments>
-                        <argument>C:/Users/gabri/Dev/ProvasJson</argument>
                         <argument>C:/Users/gabri/Dev/jsonTest.json</argument>
+                        <argument>C:/Users/gabri/Dev/ProvasJson</argument>
                         <argument>C:/Users/gabri/OneDrive/Área de Trabalho/PDFsTest</argument>
                         <argument>1</argument>
                     </arguments>

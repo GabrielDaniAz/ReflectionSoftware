@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -13,18 +14,21 @@ public class FileService {
 
     // --- Métodos de Manipulação de Diretório ---
 
-    public static void createDirectoryIfNotExists(String path) {
-        File directory = new File(path);
+    public static void createDirectory(File directory) {
         if (!directory.exists()) {
             directory.mkdirs();
         }
     }
 
-    public static void removeDirectoryIfExists(String path) {
-        File directory = new File(path);
+    public static void removeDirectory(File directory) {
         if (directory.exists()) {
             deleteDirectory(directory);
         }
+    }
+
+    public static void resetDirectory(File directory) {
+        removeDirectory(directory);
+        createDirectory(directory);
     }
 
     private static boolean deleteDirectory(File directory) {
@@ -41,12 +45,49 @@ public class FileService {
         return directory.delete();
     }
 
+    public static void organizeStepDirectories(File baseDirectory, String stepCorrection) {
+        validateDirectoryPath(baseDirectory);
+    
+        // Lista as pastas em ordem alfanumérica
+        File[] subDirectories = baseDirectory.listFiles(File::isDirectory);
+        if (subDirectories == null || subDirectories.length == 0) {
+            return; // Não há subpastas para organizar
+        }
+    
+        Arrays.sort(subDirectories, (dir1, dir2) -> dir1.getName().compareToIgnoreCase(dir2.getName()));
+    
+        boolean found = false;
+    
+        // Mantém apenas as pastas até encontrar o `stepCorrection`
+        for (File subDirectory : subDirectories) {
+            if (found) {
+                deleteDirectory(subDirectory); // Remove pastas após encontrar o stepCorrection
+            } else if (subDirectory.getName().equalsIgnoreCase(stepCorrection)) {
+                found = true;
+            }
+        }
+    
+        if (!found) {
+            throw new IllegalArgumentException("A subpasta especificada como 'stepCorrection' não foi encontrada: " + stepCorrection);
+        }
+    }
+
+
     // --- Métodos de Manipulação de Arquivo ---
 
-    public static void writeFile(String fileName, String content) {
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(fileName))) {
-            writer.write(content);
+    public static void writeFile(File file, String content) {
+        try {
+            File parentDir = file.getParentFile();
+            if (parentDir != null && !parentDir.exists()) {
+                parentDir.mkdirs();
+            }
+
+            // Grava o conteúdo no arquivo
+            try (BufferedWriter writer = new BufferedWriter(new FileWriter(file))) {
+                writer.write(content);
+            }
         } catch (IOException e) {
+            System.err.println("Erro ao gravar arquivo: " + file.getAbsolutePath());
             e.printStackTrace();
         }
     }

@@ -1,76 +1,41 @@
 package com.reflectionsoftware.service.reflection;
 
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import com.reflectionsoftware.model.result.reflection.comparison.specification.ComparisonMethod;
+import com.reflectionsoftware.model.clazz.ClassInfo;
+import com.reflectionsoftware.model.clazz.specification.MethodInfo;
+import com.reflectionsoftware.model.result.correction.exercise.clazz.specification.MethodCorrection;
 
 public class MethodService {
 
-    private static final String[] MODIFIER_KEYS = { "static", "final", "abstract", "synchronized" };
+    public static List<MethodCorrection> compareMethods(ClassInfo templateClass, ClassInfo studentClass) {
+        List<MethodCorrection> methodCorrections = new ArrayList<>();
 
-    public static List<ComparisonMethod> compareMethods(Class<?> templateClass, Class<?> studentClass) {
-        List<ComparisonMethod> methodComparisons = new ArrayList<>();
-
-        for (Method templateMethod : templateClass.getDeclaredMethods()) {
-            Optional<Method> studentMethodOpt = ComparisonUtils.findMethod(studentClass, templateMethod.getName(), templateMethod.getParameterTypes());
-
-            ComparisonMethod comparison = studentMethodOpt
-                .map(studentMethod -> buildComparison(templateMethod, studentMethod))
-                .orElseGet(() -> buildAbsentComparison(templateMethod));
-
-            methodComparisons.add(comparison);
+        for (MethodInfo templateMethod : templateClass.getMethods()) {
+            methodCorrections.add(compareSingleMethod(templateMethod, studentClass));
         }
 
-        return methodComparisons;
+        return methodCorrections;
     }
 
-    private static ComparisonMethod buildComparison(Method templateMethod, Method studentMethod) {
-        String methodName = templateMethod.getName();
+    private static MethodCorrection compareSingleMethod(MethodInfo templateMethod, ClassInfo studentClass) {
+        Optional<MethodInfo> methodOpt = ComparisonUtils.findMethod(studentClass, templateMethod.getName(), templateMethod.getParameterTypes());
 
-        boolean isVisibilityCorrect = ComparisonUtils.isVisibilityMatching(templateMethod.getModifiers(), studentMethod.getModifiers());
-        boolean isModifierCorrect = ComparisonUtils.areModifiersMatching(templateMethod.getModifiers(), studentMethod.getModifiers(), MODIFIER_KEYS);
-        boolean isReturnTypeCorrect = templateMethod.getReturnType().getSimpleName().equals(studentMethod.getReturnType().getSimpleName());
-        boolean isParamTypesCorrect = ComparisonUtils.areParameterTypesMatching(templateMethod.getParameterTypes(), studentMethod.getParameterTypes());
+        if(methodOpt.isPresent()) {
+            MethodInfo studentMethod = methodOpt.get();
+            return new MethodCorrection(
+                templateMethod,
+                studentMethod,
+                templateMethod.getName(),
+                studentMethod.getVisibility().equals(templateMethod.getVisibility()), 
+                studentMethod.getModifiers().equals(templateMethod.getModifiers()), 
+                studentMethod.getReturnType().equals(templateMethod.getReturnType()), 
+                studentMethod.getName().equals(templateMethod.getName()), 
+                studentMethod.getParameterTypes().equals(templateMethod.getParameterTypes()));
+        }
 
-        return new ComparisonMethod(
-            methodName,
-            true,
-            isVisibilityCorrect,
-            isModifierCorrect,
-            isReturnTypeCorrect,
-            isParamTypesCorrect,
-            ComparisonUtils.getVisibility(templateMethod.getModifiers()),
-            ComparisonUtils.getVisibility(studentMethod.getModifiers()),
-            ComparisonUtils.getModifiers(templateMethod.getModifiers(), MODIFIER_KEYS),
-            ComparisonUtils.getModifiers(studentMethod.getModifiers(), MODIFIER_KEYS),
-            templateMethod.getReturnType().getSimpleName(),
-            studentMethod.getReturnType().getSimpleName(),
-            ComparisonUtils.formatParameterTypes(templateMethod.getParameterTypes()),
-            ComparisonUtils.formatParameterTypes(studentMethod.getParameterTypes()),
-            ComparisonUtils.calculateGrade(isVisibilityCorrect, isModifierCorrect, isReturnTypeCorrect, isParamTypesCorrect)
-        );
-    }
-
-    private static ComparisonMethod buildAbsentComparison(Method templateMethod) {
-        return new ComparisonMethod(
-            templateMethod.getName(),
-            false,
-            false,
-            false,
-            false,
-            false,
-            ComparisonUtils.getVisibility(templateMethod.getModifiers()),
-            "ausente",
-            ComparisonUtils.getModifiers(templateMethod.getModifiers(), MODIFIER_KEYS),
-            "ausente",
-            templateMethod.getReturnType().getSimpleName(),
-            "ausente",
-            ComparisonUtils.formatParameterTypes(templateMethod.getParameterTypes()),
-            "ausente",
-            0
-        );
+        return new MethodCorrection(templateMethod);
     }
 }

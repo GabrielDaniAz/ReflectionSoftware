@@ -4,61 +4,46 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import com.reflectionsoftware.model.Template;
-import com.reflectionsoftware.model.result.reflection.ReflectionResult;
-import com.reflectionsoftware.model.result.reflection.comparison.ComparisonTemplate;
-import com.reflectionsoftware.model.result.reflection.comparison.ComparisonClass;
+
+import com.reflectionsoftware.model.clazz.ClassInfo;
+import com.reflectionsoftware.model.result.correction.ReflectionResult;
+import com.reflectionsoftware.model.result.correction.exercise.ExerciseCorrection;
+import com.reflectionsoftware.model.result.correction.exercise.clazz.ClassCorrection;
+import com.reflectionsoftware.model.template.Exercise;
+import com.reflectionsoftware.model.template.Template;
 
 public class CorrectionService {
 
-    public ReflectionResult correct(List<Template> templates, List<Class<?>> studentClasses) {
-        List<ComparisonTemplate> comparisonTemplates = templates.stream()
-            .map(template -> correctTemplate(template, studentClasses))
+    public ReflectionResult correct(Template template, List<ClassInfo> studentClasses) {
+        List<ExerciseCorrection> exerciseCorrections = template.getExercises().stream()
+            .map(exercise -> correctExercise(exercise, studentClasses))
             .collect(Collectors.toList());
 
-        return new ReflectionResult(comparisonTemplates);
+        return new ReflectionResult(exerciseCorrections);
     }
 
-    private ComparisonTemplate correctTemplate(Template template, List<Class<?>> studentClasses) {
-        List<ComparisonClass> comparisonClasses = new ArrayList<>();
+    private ExerciseCorrection correctExercise(Exercise templateExercise, List<ClassInfo> studentClasses) {
+        List<ClassCorrection> classCorrections = new ArrayList<>();
         List<String> missingClasses = new ArrayList<>();
 
-        for (Class<?> templateClass : template.getClasses()) {
-            Optional<Class<?>> studentClass = ComparisonUtils.getClassByName(templateClass.getSimpleName(), studentClasses);
+        for (ClassInfo templateClass : templateExercise.getClasses()) {
+            Optional<ClassInfo> studentClass = ComparisonUtils.getClassByName(templateClass.getClassName(), studentClasses);
             if(!studentClass.isPresent()){
-                missingClasses.add(templateClass.getSimpleName());
+                missingClasses.add(templateClass.getClassName());
                 continue;
             }
-            comparisonClasses.add(compareClasses(templateClass, studentClass.get()));
+            classCorrections.add(compareClasses(templateClass, studentClass.get()));
         }
 
-        return new ComparisonTemplate(template.getExerciseName(), comparisonClasses, missingClasses);
+        return new ExerciseCorrection(templateExercise.getExerciseName(), classCorrections, missingClasses);
     }
 
-    // private ComparisonTemplate correctTemplate(Template template, List<Class<?>> studentClasses) {
-    //     List<ComparisonClass> comparisonClasses = template.getClasses().stream()
-    //         .map(templateClass -> {
-    //             return ComparisonUtils.getClassByName(templateClass.getSimpleName(), studentClasses)
-    //                 .map(studentClass -> compareClasses(templateClass, studentClass))
-    //                 .orElse(null);
-    //         })
-    //         .collect(Collectors.toList());
-
-    //     List<String> missingClasses = template.getClasses().stream()
-    //         .map(Class::getSimpleName)
-    //         .filter(className -> studentClasses.stream()
-    //             .noneMatch(studentClass -> studentClass.getSimpleName().equals(className)))
-    //         .collect(Collectors.toList());
-
-    //     return new ComparisonTemplate(template.getExerciseName(), comparisonClasses, missingClasses);
-    // }
-
-    private ComparisonClass compareClasses(Class<?> templateClass, Class<?> studentClass) {
-        return new ComparisonClass(
-            studentClass.getSimpleName(),
+    private ClassCorrection compareClasses(ClassInfo templateClass, ClassInfo studentClass) {
+        return new ClassCorrection(
+            studentClass.getClassName(),
+            ConstructorService.compareConstructors(templateClass, studentClass),
             FieldService.compareFields(templateClass, studentClass),
-            MethodService.compareMethods(templateClass, studentClass),
-            ConstructorService.compareConstructors(templateClass, studentClass)
+            MethodService.compareMethods(templateClass, studentClass)
         );
     }
 }

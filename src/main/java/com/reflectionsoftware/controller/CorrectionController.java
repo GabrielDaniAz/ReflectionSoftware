@@ -2,25 +2,25 @@ package com.reflectionsoftware.controller;
 
 import java.util.List;
 
-import com.reflectionsoftware.model.Professor;
+import com.reflectionsoftware.model.template.Template;
 import com.reflectionsoftware.model.Student;
 import com.reflectionsoftware.service.reflection.CorrectionService;
 
 public class CorrectionController {
     
-    private CorrectionService correctionService;
-    private Professor professor;
+    private Template template;
     private List<Student> students;
+    private CorrectionService correctionService;
 
-    public CorrectionController(Professor professor, List<Student> students, CorrectionService correctionService){
-        this.professor = professor;
+    public CorrectionController(Template template, List<Student> students, CorrectionService correctionService){
+        this.template = template;
         this.students = students;
         this.correctionService = correctionService;
     }
 
     public void start(){
         for (Student student : students) {
-            student.setReflectionResult(correctionService.correct(professor.getTemplates(), student.getClasses()));
+            student.setReflectionResult(correctionService.correct(template, student.getClasses()));
         }
     }
 }

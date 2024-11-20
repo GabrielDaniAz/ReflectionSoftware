@@ -1,87 +1,105 @@
 package com.reflectionsoftware.service.reflection;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import com.reflectionsoftware.model.clazz.ClassInfo;
+import com.reflectionsoftware.model.clazz.specification.ConstructorInfo;
+import com.reflectionsoftware.model.clazz.specification.FieldInfo;
+import com.reflectionsoftware.model.clazz.specification.MethodInfo;
+
 public class ComparisonUtils {
 
-    public static Optional<Field> getFieldByName(String fieldName, Field[] fields) {
-        return Arrays.stream(fields).filter(field -> field.getName().equals(fieldName)).findFirst();
+    public static Optional<FieldInfo> getFieldByName(String fieldName, List<FieldInfo> fields) {
+        return fields.stream().filter(field -> field.getName().equals(fieldName)).findFirst();
     }
 
-    public static Optional<Class<?>> getClassByName(String className, List<Class<?>> classes) {
-        return classes.stream().filter(clazz -> clazz.getSimpleName().equals(className)).findFirst();
+    public static Optional<ClassInfo> getClassByName(String className, List<ClassInfo> classes) {
+        return classes.stream().filter(clazz -> clazz.getClassName().equals(className)).findFirst();
     }
 
-    public static String getVisibility(int modifiers) {
-        if (Modifier.isPrivate(modifiers)) return "private";
-        if (Modifier.isProtected(modifiers)) return "protected";
-        if (Modifier.isPublic(modifiers)) return "public";
-        return "default";
-    }
+    public static Optional<ConstructorInfo> findConstructor(ClassInfo clazz, String paramTypes) {
+        List<ConstructorInfo> constructors = clazz.getConstructors();
 
-    public static String getModifiers(int modifiers, String... allowedModifiers) {
-        return Arrays.stream(allowedModifiers)
-                     .filter(modifier -> Modifier.toString(modifiers).contains(modifier))
-                     .collect(Collectors.joining(" "));
-    }
-
-    public static Optional<Constructor<?>> findConstructor(Class<?> clazz, Class<?>[] paramTypes) {
-        try {
-            return Optional.of(clazz.getDeclaredConstructor(paramTypes));
-        } catch (NoSuchMethodException e) {
-            Optional<Constructor<?>> constructor = Arrays.stream(clazz.getDeclaredConstructors())
-                         .filter(c -> areParameterTypesMatching(paramTypes, c.getParameterTypes()))
-                         .findFirst();
-            if(constructor.isPresent()) {
-                return constructor;
-            }
-
-            constructor = Arrays.stream(clazz.getDeclaredConstructors())
-                        .filter(c -> c.getParameterCount() == paramTypes.length)
-                        .findFirst();
-
-            if(constructor.isPresent()){
-                return constructor;
-            }
-
-            constructor = Arrays.stream(clazz.getDeclaredConstructors()).findFirst();
-            return constructor;
+        // Passo 1: Encontrar construtor com parâmetros exatos (mesma ordem e tipos)
+        Optional<ConstructorInfo> exactMatch = constructors.stream()
+            .filter(c -> c.getParameterTypes().equals(paramTypes))
+            .findFirst();
+        if (exactMatch.isPresent()) {
+            return exactMatch;
         }
+
+        // Passo 2: Encontrar construtor com os mesmos parâmetros, mas em ordem diferente
+        Optional<ConstructorInfo> unorderedMatch = constructors.stream()
+            .filter(c -> areParameterTypesMatchingUnordered(paramTypes, c.getParameterTypes()))
+            .findFirst();
+        if (unorderedMatch.isPresent()) {
+            return unorderedMatch;
+        }
+
+        // Passo 3: Encontrar construtor com a mesma quantidade de parâmetros
+        Optional<ConstructorInfo> paramCountMatch = constructors.stream()
+            .filter(c -> countParameters(paramTypes) == countParameters(c.getParameterTypes()))
+            .findFirst();
+        if (paramCountMatch.isPresent()) {
+            return paramCountMatch;
+        }
+
+        // Passo 4: Retornar qualquer construtor (apenas para casos em que nenhum critério acima é atendido)
+        return constructors.stream().findFirst();
     }
 
-    public static Optional<Method> findMethod(Class<?> clazz, String methodName, Class<?>[] paramTypes) {
-        // Passo 1: Encontrar o método com nome e parâmetros iguais (mesma ordem)
-        try {
-            return Optional.of(clazz.getDeclaredMethod(methodName, paramTypes));  // Exato: mesmo nome e tipos de parâmetros na mesma ordem
-        } catch (NoSuchMethodException e) {
-            // Passo 2: Procurar métodos com nome e parâmetros iguais (ordem diferente)
-            Optional<Method> method = Arrays.stream(clazz.getDeclaredMethods())
-                .filter(m -> m.getName().equals(methodName) && areParameterTypesMatching(paramTypes, m.getParameterTypes()))
-                .findFirst();
-            if (method.isPresent()) {
-                return method;  // Encontrado método com parâmetros na mesma ordem, mas ordem diferente.
-            }
-    
-            // Passo 3: Procurar métodos com nome e mesma quantidade de parâmetros (parâmetros podem ser diferentes)
-            method = Arrays.stream(clazz.getDeclaredMethods())
-                .filter(m -> m.getName().equals(methodName) && m.getParameterCount() == paramTypes.length)
-                .findFirst();
-            if (method.isPresent()) {
-                return method;  // Encontrado método com o mesmo nome e número de parâmetros.
-            }
-    
-            // Passo 4: Procurar métodos com nome igual apenas
-            return Arrays.stream(clazz.getDeclaredMethods())
-                .filter(m -> m.getName().equals(methodName))
-                .findFirst();  // Encontrar método com nome igual, independentemente dos parâmetros.
+
+    public static Optional<MethodInfo> findMethod(ClassInfo clazz, String methodName, String paramTypes) {
+        List<MethodInfo> methods = clazz.getMethods();
+
+        // Passo 1: Encontrar método com nome e parâmetros exatos (mesma ordem e tipos)
+        Optional<MethodInfo> exactMatch = methods.stream()
+            .filter(m -> m.getName().equals(methodName) && m.getParameterTypes().equals(paramTypes))
+            .findFirst();
+        if (exactMatch.isPresent()) {
+            return exactMatch;
         }
+
+        // Passo 2: Encontrar método com nome igual e os mesmos parâmetros, mas em ordem diferente
+        Optional<MethodInfo> unorderedMatch = methods.stream()
+            .filter(m -> m.getName().equals(methodName) && areParameterTypesMatchingUnordered(paramTypes, m.getParameterTypes()))
+            .findFirst();
+        if (unorderedMatch.isPresent()) {
+            return unorderedMatch;
+        }
+
+        // Passo 3: Encontrar método com nome igual e mesma quantidade de parâmetros
+        Optional<MethodInfo> paramCountMatch = methods.stream()
+            .filter(m -> m.getName().equals(methodName) && countParameters(paramTypes) == countParameters(m.getParameterTypes()))
+            .findFirst();
+        if (paramCountMatch.isPresent()) {
+            return paramCountMatch;
+        }
+
+        // Passo 4: Encontrar método apenas com nome igual
+        return methods.stream()
+            .filter(m -> m.getName().equals(methodName))
+            .findFirst();
+    }
+
+    // Verifica se os tipos de parâmetros são os mesmos, ignorando a ordem
+    private static boolean areParameterTypesMatchingUnordered(String paramTypes1, String paramTypes2) {
+        List<String> params1 = splitParameterTypes(paramTypes1);
+        List<String> params2 = splitParameterTypes(paramTypes2);
+        return params1.size() == params2.size() && params1.containsAll(params2);
+    }
+
+    // Conta o número de parâmetros em uma string de tipos de parâmetro
+    private static int countParameters(String paramTypes) {
+        return splitParameterTypes(paramTypes).size();
+    }
+
+    // Divide a string de tipos de parâmetros em uma lista
+    private static List<String> splitParameterTypes(String paramTypes) {
+        return paramTypes.isEmpty() ? List.of() : List.of(paramTypes.split(",\\s*"));
     }
 
     public static String formatParameterTypes(Class<?>[] parameterTypes) {
@@ -100,13 +118,5 @@ public class ComparisonUtils {
 
     public static boolean areParameterTypesMatching(Class<?>[] paramTypes1, Class<?>[] paramTypes2) {
         return Arrays.equals(paramTypes1, paramTypes2);
-    }
-
-    public static boolean isVisibilityMatching(int modifier1, int modifier2) {
-        return getVisibility(modifier1).equals(getVisibility(modifier2));
-    }
-
-    public static boolean areModifiersMatching(int modifier1, int modifier2, String... allowedModifiers) {
-        return getModifiers(modifier1, allowedModifiers).equals(getModifiers(modifier2, allowedModifiers));
     }
 }

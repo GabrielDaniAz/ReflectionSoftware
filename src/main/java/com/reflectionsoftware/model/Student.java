@@ -2,24 +2,21 @@ package com.reflectionsoftware.model;
 
 import java.util.List;
 
-import com.reflectionsoftware.model.result.compilation.CompilationResult;
-import com.reflectionsoftware.model.result.reflection.ReflectionResult;
+import com.reflectionsoftware.model.clazz.ClassInfo;
+import com.reflectionsoftware.model.result.correction.ReflectionResult;
 
 public class Student {
     private final String name;
-    private final CompilationResult compilationResult;
-    private final List<Class<?>> classes;
+    private final List<ClassInfo> classes;
     private ReflectionResult reflectionResult;
 
-    public Student(String name, CompilationResult compilationResult, List<Class<?>> classes) {
+    public Student(String name, List<ClassInfo> classes) {
         this.name = name;
-        this.compilationResult = compilationResult;
         this.classes = classes;
     }
 
     public String getName() { return name; }
-    public CompilationResult getCompilationResult() { return compilationResult; }
-    public List<Class<?>> getClasses() { return classes; }
+    public List<ClassInfo> getClasses() { return classes; }
     public ReflectionResult getReflectionResult() { return reflectionResult; }
     public void setReflectionResult(ReflectionResult reflectionResult) { this.reflectionResult = reflectionResult; }
 }
