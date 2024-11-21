@@ -64,7 +64,7 @@ public class ConstructorCorrection {
     @Override
     public String toString() {
         return String.format(
-            "Visibilidade: %s, Modificador: %s, Retorno: %s, Nome: %s, Parâmetros: %s",
+            "Visibilidade: %s, Modificador: %s, Nome: %s, Parâmetros: %s",
             isVisibilityCorrect ? "Correto" : "Incorreto",
             isModifiersCorrect ? "Correto" : "Incorreto",
             isNameCorrect ? "Correto" : "Incorreto",

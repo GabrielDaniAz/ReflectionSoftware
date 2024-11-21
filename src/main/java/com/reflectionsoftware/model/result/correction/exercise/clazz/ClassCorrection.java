@@ -26,5 +26,42 @@ public class ClassCorrection {
     public List<ConstructorCorrection> getConstructorsCorrection() { return constructorsCorrection; }
     public List<FieldCorrection> getFieldsCorrection() { return fieldsCorrection; }
     public List<MethodCorrection> getMethodsCorrection() { return methodsCorrection; }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+
+        sb.append("Correção para classe: ").append(className).append("\n");
+
+        sb.append("Construtores:\n");
+        if (constructorsCorrection.isEmpty()) {
+            sb.append("  Nenhum construtor para correção.\n");
+        } else {
+            for (ConstructorCorrection correction : constructorsCorrection) {
+                sb.append("  - ").append(correction.toString()).append("\n");
+            }
+        }
+
+        sb.append("Atributos:\n");
+        if (fieldsCorrection.isEmpty()) {
+            sb.append("  Nenhum atributo para correção.\n");
+        } else {
+            for (FieldCorrection correction : fieldsCorrection) {
+                sb.append("  - ").append(correction.toString()).append("\n");
+            }
+        }
+
+        sb.append("Métodos:\n");
+        if (methodsCorrection.isEmpty()) {
+            sb.append("  Nenhum método para correção.\n");
+        } else {
+            for (MethodCorrection correction : methodsCorrection) {
+                sb.append("  - ").append(correction.toString()).append("\n");
+            }
+        }
+
+        return sb.toString();
+    }
+
 }
 

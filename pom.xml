@@ -42,7 +42,7 @@
                     <mainClass>com.reflectionsoftware.Main</mainClass>
                     <arguments>
                         <argument>C:/Users/gabri/Dev/jsonTest.json</argument>
-                        <argument>C:/Users/gabri/Dev/ProvasJson</argument>
+                        <argument>C:/Users/gabri/Dev/Alunos</argument>
                         <argument>C:/Users/gabri/OneDrive/Área de Trabalho/PDFsTest</argument>
                         <argument>1</argument>
                     </arguments>

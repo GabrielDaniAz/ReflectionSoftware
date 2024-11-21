@@ -45,7 +45,6 @@ public class AppController {
         .filter(c -> c.getCompilationResult() != null) // Filtra classes com resultado de compilação não nulo
         .forEach(c -> System.out.println(c.getCompilationResult().getDiagnostics())); // Imprime os diagnósticos
 
-
         CorrectionService correctionService = new CorrectionService();
         CorrectionController correctionController = new CorrectionController(template, studentManager.getStudents(), correctionService);
         correctionController.start();

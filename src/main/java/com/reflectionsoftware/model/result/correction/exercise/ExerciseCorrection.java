@@ -19,4 +19,32 @@ public class ExerciseCorrection {
     public String getExerciseName() { return exerciseName; }
     public List<ClassCorrection> getClassCorrections() { return classCorrections; }
     public List<String> getMissingClasses() { return missingClasses; }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+
+        sb.append("Exercício: ").append(exerciseName).append("\n");
+
+        sb.append("Classes:\n");
+        if (classCorrections.isEmpty()) {
+            sb.append("  Nenhuma classe para correção.\n");
+        } else {
+            for (ClassCorrection correction : classCorrections) {
+                sb.append("  - ").append(correction.toString()).append("\n");
+            }
+        }
+
+        sb.append("Classes ausentes:\n");
+        if (missingClasses.isEmpty()) {
+            sb.append("  Nenhuma classe ausente.\n");
+        } else {
+            for (String missingClass : missingClasses) {
+                sb.append("  - ").append(missingClass).append("\n");
+            }
+        }
+
+        return sb.toString();
+    }
+
 }

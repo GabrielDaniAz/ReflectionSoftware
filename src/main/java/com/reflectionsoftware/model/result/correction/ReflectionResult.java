@@ -13,4 +13,22 @@ public class ReflectionResult {
     }
 
     public List<ExerciseCorrection> getExerciseCorrections() { return exerciseCorrections; }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+
+        sb.append("Resultado:\n");
+
+        if (exerciseCorrections.isEmpty()) {
+            sb.append("  Nenhum exercício corrigido.\n");
+        } else {
+            for (ExerciseCorrection correction : exerciseCorrections) {
+                sb.append(correction.toString()).append("\n");
+            }
+        }
+
+        return sb.toString();
+    }
+
 }

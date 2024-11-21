@@ -4,7 +4,6 @@ import java.util.List;
 import java.io.File;
 
 import com.reflectionsoftware.model.Student;
-import com.reflectionsoftware.service.file.FileService;
 import com.reflectionsoftware.service.pdf.PdfService;
 
 public class PdfController {
@@ -23,7 +22,8 @@ public class PdfController {
 
             String pdfFileString = studentName + "_relatorio.pdf";
             File pdfFile = new File(pdfDirectory, pdfFileString);
-            FileService.createDirectory(pdfFile);
+
+            System.out.println(studentName + ":\n" + student.getReflectionResult().toString());
 
             try {
                 PdfService.generateCorrectionReport(studentName, student.getReflectionResult(), pdfFile);
