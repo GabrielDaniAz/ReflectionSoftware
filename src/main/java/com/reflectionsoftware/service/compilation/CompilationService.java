@@ -2,6 +2,8 @@ package com.reflectionsoftware.service.compilation;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
@@ -17,7 +19,11 @@ import javax.tools.ToolProvider;
 import com.reflectionsoftware.model.result.compilation.CompilationResult;
 
 public class CompilationService {
+    private static final File projectRoot = new File(System.getProperty("user.dir"));
     private static final JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
+    private static final List<File> classpathFiles = Arrays.asList(
+        new File(projectRoot, "lib/ReflectionLibTCC-1.0.0.jar")  // JAR dentro da pasta lib
+    );
 
     public static CompilationResult compileClasses(File rootDirectory, List<File> javaFiles) {
         if (compiler == null) {
@@ -60,6 +66,17 @@ public class CompilationService {
         }
     }
 
+    // private static StandardJavaFileManager createFileManager(File compileDir, DiagnosticCollector<JavaFileObject> diagnostics) throws IOException {
+    //     if (!compileDir.exists() && !compileDir.mkdirs()) {
+    //         String errorMessage = "Não foi possível criar o diretório de compilação: " + compileDir.getPath();
+    //         System.err.println(errorMessage);
+    //         throw new IOException(errorMessage);
+    //     }
+    //     StandardJavaFileManager fileManager = compiler.getStandardFileManager(diagnostics, Locale.getDefault(), null);
+    //     fileManager.setLocation(StandardLocation.CLASS_OUTPUT, Collections.singletonList(compileDir));
+    //     return fileManager;
+    // }
+
     private static StandardJavaFileManager createFileManager(File compileDir, DiagnosticCollector<JavaFileObject> diagnostics) throws IOException {
         if (!compileDir.exists() && !compileDir.mkdirs()) {
             String errorMessage = "Não foi possível criar o diretório de compilação: " + compileDir.getPath();
@@ -67,9 +84,15 @@ public class CompilationService {
             throw new IOException(errorMessage);
         }
         StandardJavaFileManager fileManager = compiler.getStandardFileManager(diagnostics, Locale.getDefault(), null);
+        
+        // Adiciona os arquivos JAR ao classpath
+        List<File> classpath = new ArrayList<>(classpathFiles);
+        fileManager.setLocation(StandardLocation.CLASS_PATH, classpath);
+
         fileManager.setLocation(StandardLocation.CLASS_OUTPUT, Collections.singletonList(compileDir));
         return fileManager;
     }
+
 
     private static boolean executeCompilation(Iterable<? extends JavaFileObject> compilationUnits, StandardJavaFileManager fileManager, DiagnosticCollector<JavaFileObject> diagnostics) {
         try {

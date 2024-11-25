@@ -8,6 +8,7 @@ import com.reflectionsoftware.service.file.FileService;
 public class InputValidator {
 
     public static void validateArguments(String[] args) {
+        // Verificar se o número mínimo de argumentos foi passado
         if (args.length < 4) {
             throw new IllegalArgumentException("Devem ser passados pelo menos 4 argumentos: [Gabarito (JSON/Diretório), Diretório dos Exercícios, Diretório dos PDFs, Etapa de Correção].");
         }
@@ -77,5 +78,4 @@ public class InputValidator {
             throw new RuntimeException("Erro ao processar o arquivo JSON: " + jsonFile.getPath(), e);
         }
     }
-    
 }
