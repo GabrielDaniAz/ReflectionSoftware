@@ -8,11 +8,12 @@
     <version>1.0-SNAPSHOT</version>
 
     <dependencies>
-        <dependency>
+        <!-- Dependências comentadas, descomente se necessário -->
+        <!-- <dependency>
             <groupId>com.google.code.gson</groupId>
             <artifactId>gson</artifactId>
             <version>2.10.1</version>
-        </dependency>
+        </dependency> -->
         <dependency>
             <groupId>com.itextpdf</groupId>
             <artifactId>itext-core</artifactId>
@@ -29,13 +30,6 @@
             <artifactId>jackson-databind</artifactId>
             <version>2.15.2</version>
         </dependency>
-        <dependency>
-            <groupId>com.gabrieldani</groupId>
-            <artifactId>ReflectionLibTCC</artifactId>
-            <version>1.0.1</version>
-            <scope>system</scope>
-            <systemPath>${project.basedir}/lib/ReflectionLibTCC-1.0.0.jar</systemPath>
-        </dependency>
     </dependencies>
 
     <build>
@@ -47,7 +41,8 @@
                 <configuration>
                     <mainClass>com.reflectionsoftware.Main</mainClass>
                     <arguments>
-                        <!-- <argument>C:/Users/gabri/Dev/jsonTest.json</argument> -->
+                        <!-- Argumentos de execução, altere conforme necessário -->
+                        <!-- <argument>C:/Users/gabri/Dev/Provas/jsonTest.json</argument> -->
                         <argument>C:/Users/gabri/Dev/Provas/Gabarito</argument>
                         <argument>C:/Users/gabri/Dev/Provas/2Alunos</argument>
                         <argument>C:/Users/gabri/OneDrive/Área de Trabalho/PDFsTest</argument>
@@ -56,13 +51,14 @@
                 </configuration>
             </plugin>
             <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-compiler-plugin</artifactId>
-            <version>3.8.1</version>
-            <configuration>
-                <source>22</source>
-                <target>22</target>
-            </configuration>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.8.1</version>
+                <configuration>
+                    <!-- Configuração do compilador para a versão 22 do JDK -->
+                    <source>22</source>
+                    <target>22</target>
+                </configuration>
             </plugin>
         </plugins>
     </build>

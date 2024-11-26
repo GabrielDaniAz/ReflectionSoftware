@@ -23,8 +23,6 @@ public class PdfController {
             String pdfFileString = studentName + "_relatorio.pdf";
             File pdfFile = new File(pdfDirectory, pdfFileString);
 
-            System.out.println(studentName + ":\n" + student.getReflectionResult().toString());
-
             try {
                 PdfService.generateCorrectionReport(studentName, student.getReflectionResult(), pdfFile);
             } catch (Exception e) {

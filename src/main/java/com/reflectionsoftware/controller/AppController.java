@@ -1,14 +1,15 @@
 package com.reflectionsoftware.controller;
 
 import java.io.File;
+import java.util.List;
 
-import com.reflectionsoftware.manager.StudentManager;
+import com.reflectionsoftware.model.Student;
 import com.reflectionsoftware.model.template.Template;
 import com.reflectionsoftware.service.converter.JsonConverter;
 import com.reflectionsoftware.service.file.FileService;
 import com.reflectionsoftware.service.reflection.CorrectionService;
-import com.reflectionsoftware.util.processor.ClassProcessor;
-import com.reflectionsoftware.util.processor.IClassProcessor;
+import com.reflectionsoftware.util.processor.StudentProcessor;
+import com.reflectionsoftware.util.processor.TemplateProcessor;
 import com.reflectionsoftware.util.validator.FileValidator;
 
 public class AppController {
@@ -36,20 +37,14 @@ public class AppController {
 
         FileService.organizeStepDirectories(templateDirectory, stepCorrection);
 
-        IClassProcessor classProcessor = new ClassProcessor();
-        Template template = new Template(classProcessor.processDirectoryToClasses(templateDirectory));
-        StudentManager studentManager = new StudentManager(classProcessor.processDirectoryToClasses(studentsDirectory));
-
-        template.getExercises().stream()
-        .flatMap(e -> e.getClasses().stream()) // Itera pelas classes de cada exercício
-        .filter(c -> c.getCompilationResult() != null) // Filtra classes com resultado de compilação não nulo
-        .forEach(c -> System.out.println(c.getCompilationResult().getDiagnostics())); // Imprime os diagnósticos
+        Template template = TemplateProcessor.processTemplateDirectory(templateDirectory);
+        List<Student> students = StudentProcessor.processStudentDirectory(studentsDirectory);
 
         CorrectionService correctionService = new CorrectionService();
-        CorrectionController correctionController = new CorrectionController(template, studentManager.getStudents(), correctionService);
+        CorrectionController correctionController = new CorrectionController(template, students, correctionService);
         correctionController.start();
 
-        PdfController pdfController = new PdfController(studentManager.getStudents(), pdfDirectory);
+        PdfController pdfController = new PdfController(students, pdfDirectory);
         pdfController.start();
     }
 }

@@ -126,6 +126,24 @@ public class FileService {
         return javaFiles;
     }
 
+    public static List<File> getAllJarFiles(File directory) {
+        List<File> jarFiles = new ArrayList<>();
+        if (directory.exists() && directory.isDirectory()) {
+            File[] files = directory.listFiles();
+            if (files != null) {
+                for (File file : files) {
+                    if (file.isDirectory() && file.getName().equals("bin")) continue;
+                    if (file.isDirectory()) {
+                        jarFiles.addAll(getAllJarFiles(file));
+                    } else if (file.isFile() && file.getName().endsWith(".jar")) {
+                        jarFiles.add(file);
+                    }
+                }
+            }
+        }
+        return jarFiles;
+    }
+
     private static void validateDirectoryPath(File directory) {
         if (!directory.exists() || !directory.isDirectory()) {
             throw new IllegalArgumentException("O caminho fornecido não é um diretório válido.");

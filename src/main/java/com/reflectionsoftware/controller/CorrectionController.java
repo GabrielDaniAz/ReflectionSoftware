@@ -20,7 +20,7 @@ public class CorrectionController {
 
     public void start(){
         for (Student student : students) {
-            student.setReflectionResult(correctionService.correct(template, student.getClasses()));
+            student.setReflectionResult(correctionService.correct(template, student));
         }
     }
 }

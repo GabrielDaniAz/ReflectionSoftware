@@ -19,15 +19,17 @@ public class PdfMethod {
         addMissingMethods(document, methods);
 
         // Adiciona tabela de construtores
-        List<String> headers = List.of("Método", "Visibilidade", "Modificador", "Retorno", "Nome", "Parâmetros", "%");
+        List<String> headers = List.of("Método", "Visibilidade", "Modificador", "Retorno", "Parâmetros", "%", "Nota Total", "Nota Obtida");
         List<Function<MethodCorrection, String>> valueExtractors = List.of(
-            method -> method.getMethodName(),
+            method -> method.studentString(),
             method -> method.isVisibilityCorrect() ? "V" : "X",
             method -> method.isModifiersCorrect() ? "V" : "X",
-            method -> method.isReturnTypeCorrect() ? "V" : "X", 
-            method -> method.isNameCorrect() ? "V" : "X",
+            method -> method.isReturnTypeCorrect() ? "V" : "X",
             method -> method.isParameterTypesCorrect() ? "V" : "X",
-            method -> String.valueOf(method.getGrade())
+            method -> String.valueOf((int) Math.round(method.getGrade())),
+            method -> String.format("%.2f", method.getTotalGrade()),
+            method -> String.format("%.2f", method.gradeObtained())
+
         );
 
         PdfTableService.addTable(document, headers, methods, valueExtractors);
@@ -36,7 +38,7 @@ public class PdfMethod {
     private static void addMissingMethods(Document document, List<MethodCorrection> methodCorrections) {
         List<String> missingMethods = methodCorrections.stream()
                 .filter(methodCorrection -> !methodCorrection.exists())
-                .map(correction -> correction.getMethodName())
+                .map(correction -> correction.getTemplateMethod().getName())
                 .toList();
 
         if (!missingMethods.isEmpty()) {

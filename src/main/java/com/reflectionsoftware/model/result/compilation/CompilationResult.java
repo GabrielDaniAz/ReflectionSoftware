@@ -11,13 +11,15 @@ public class CompilationResult {
     private final File compilationDirectory;
     private final List<File> compiledFiles;
     private final List<Diagnostic<? extends JavaFileObject>> diagnostics;
+    private final List<File> jarFiles;
     private final String errorDetails;
 
-    public CompilationResult(File rootDirectory, File compilationDirectory, List<File> compiledFiles, List<Diagnostic<? extends JavaFileObject>> diagnostics) {
+    public CompilationResult(File rootDirectory, File compilationDirectory, List<File> compiledFiles, List<Diagnostic<? extends JavaFileObject>> diagnostics, List<File> jarFiles) {
         this.rootDirectory = rootDirectory;
         this.compilationDirectory = compilationDirectory;
         this.diagnostics = diagnostics;
         this.compiledFiles = compiledFiles;
+        this.jarFiles = jarFiles;
         errorDetails = null;
     }
 
@@ -27,6 +29,7 @@ public class CompilationResult {
         compilationDirectory = null;
         diagnostics = null;
         compiledFiles = null;
+        jarFiles = null;
     }
 
     public File getRootDirectory(){ return rootDirectory; }
@@ -34,5 +37,6 @@ public class CompilationResult {
     public boolean isSuccess() { return !compiledFiles.isEmpty() ? true : false; }
     public List<Diagnostic<? extends JavaFileObject>> getDiagnostics() {  return diagnostics; }
     public List<File> getCompiledFiles() { return compiledFiles; }
+    public List<File> getJarFiles(){ return jarFiles; }
     public String getErrorDetails(){ return errorDetails; }
 }

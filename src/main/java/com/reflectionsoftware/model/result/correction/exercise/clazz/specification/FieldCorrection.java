@@ -1,82 +1,103 @@
 package com.reflectionsoftware.model.result.correction.exercise.clazz.specification;
 
-import com.reflectionsoftware.model.clazz.specification.FieldInfo;
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 
 public class FieldCorrection {
-    private FieldInfo templateField;
-    private FieldInfo studentField;
+    private final Field templateField;
+    private final Field studentField;
 
-    private final String fieldName;
+    private boolean isVisibilityCorrect;
+    private boolean isModifiersCorrect;
+    private boolean isTypeCorrect;
 
-    private final boolean isVisibilityCorrect;
-    private final boolean isModifiersCorrect;
-    private final boolean isTypeCorrect;
-    private final boolean isNameCorrect;
+    private double totalGrade;
 
-    private final boolean exists;
-
-    public FieldCorrection(FieldInfo templateField, FieldInfo studentField, String fieldName, boolean isVisibilityCorrect, 
-            boolean isModifiersCorrect, boolean isTypeCorrect, boolean isNameCorrect) {
-        
+    public FieldCorrection(Field templateField, Field studentField) {
         this.templateField = templateField;
         this.studentField = studentField;
-
-        this.fieldName = fieldName;
-
-        this.isVisibilityCorrect = isVisibilityCorrect;
-        this.isModifiersCorrect = isModifiersCorrect;
-        this.isTypeCorrect = isTypeCorrect;
-        this.isNameCorrect = isNameCorrect;
-
-        this.exists = true;
     }
 
-    public FieldCorrection(FieldInfo templateField) {
-        this.templateField = templateField;
+    // Getters
+    public Field getTemplateField() { return templateField; }
+    public Field getStudentField() { return studentField; }
 
-        this.fieldName = templateField.getName();
-
-        this.studentField = null;
-
-        this.isVisibilityCorrect = false;
-        this.isModifiersCorrect = false;
-        this.isTypeCorrect = false;
-        this.isNameCorrect = false;
-
-        this.exists = false;
+    public String getFieldName() {
+        return studentField != null ? studentField.getName() : templateField.getName();
     }
-
-    public FieldInfo getTemplatetField() { return templateField; }
-    public FieldInfo getStudentField() { return studentField; }
-
-    public String getFieldName() { return fieldName; }
 
     public boolean isVisibilityCorrect() { return isVisibilityCorrect; }
     public boolean isModifiersCorrect() { return isModifiersCorrect; }
     public boolean isTypeCorrect() { return isTypeCorrect; }
-    public boolean isNameCorrect() { return isNameCorrect; }
+    public double getTotalGrade() { return totalGrade; }
+    public boolean exists() { return studentField != null; }
 
-    public boolean exists() { return exists; }
+    // Setters
+    public void setVisibilityCorrect(boolean isCorrect) { isVisibilityCorrect = isCorrect; }
+    public void setModifiersCorrect(boolean isCorrect) { isModifiersCorrect = isCorrect; }
+    public void setTypeCorrect(boolean isCorrect) { isTypeCorrect = isCorrect; }
+    public void setTotalGrade(double totalGrade) { this.totalGrade = totalGrade; }
 
-    public int getGrade() {
+    // Nota percentual e final
+    public int getPercentilGrade() {
         int score = 0;
-    
-        if (isVisibilityCorrect) score += 1;
-        if (isModifiersCorrect) score += 1;
-        if (isTypeCorrect) score += 1;
-        if (isNameCorrect) score += 1;
-    
-        return (score*100)/4;
+
+        if (isVisibilityCorrect) score++;
+        if (isModifiersCorrect) score++;
+        if (isTypeCorrect) score++;
+
+        return (score * 100) / 3;
     }
 
+    public double gradeObtained() {
+        return (getPercentilGrade() * totalGrade) / 100.0;
+    }
+
+    public String templateString() {
+        return fieldToString(templateField);
+    }
+    
+    public String studentString() {
+        return fieldToString(studentField);
+    }
+    
+    private String fieldToString(Field field) {
+        if (field == null) {
+            return "Campo não definido";
+        }
+    
+        // Obter modificadores como string (ex: public, private)
+        String modifiers = Modifier.toString(field.getModifiers());
+        // Obter tipo do campo
+        String fieldType = field.getType().getSimpleName();
+        // Obter nome do campo
+        String fieldName = field.getName();
+    
+        // Combinar tudo no formato desejado
+        return String.format("%s %s %s", modifiers, fieldType, fieldName);
+    }    
+
+    // toString
     @Override
     public String toString() {
         return String.format(
-            "Visibilidade: %s, Modificador: %s, Tipo: %s, Nome: %s",
-            isVisibilityCorrect ? "Correto" : "Incorreto",
-            isModifiersCorrect ? "Correto" : "Incorreto",
+            "Correção do Campo:\n" +
+            "  Nome: %s\n" +
+            "  Template Field: %s\n" +
+            "  Student Field: %s\n" +
+            "  Visibilidade: %s\n" +
+            "  Modificadores: %s\n" +
+            "  Tipo: %s\n" +
+            "  Nota Total: %.2f\n" +
+            "  Nota Obtida: %.2f\n",
+            getFieldName(),
+            templateField,
+            studentField != null ? studentField : "Não existe",
+            isVisibilityCorrect ? "Correta" : "Incorreta",
+            isModifiersCorrect ? "Corretos" : "Incorretos",
             isTypeCorrect ? "Correto" : "Incorreto",
-            isNameCorrect ? "Correto" : "Incorreto"
+            totalGrade,
+            gradeObtained()
         );
     }
 }

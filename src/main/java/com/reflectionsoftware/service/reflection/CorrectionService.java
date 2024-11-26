@@ -1,49 +1,55 @@
 package com.reflectionsoftware.service.reflection;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
-import com.reflectionsoftware.model.clazz.ClassInfo;
+import com.reflectionsoftware.model.Student;
 import com.reflectionsoftware.model.result.correction.ReflectionResult;
 import com.reflectionsoftware.model.result.correction.exercise.ExerciseCorrection;
 import com.reflectionsoftware.model.result.correction.exercise.clazz.ClassCorrection;
-import com.reflectionsoftware.model.template.Exercise;
 import com.reflectionsoftware.model.template.Template;
+import com.reflectionsoftware.model.template.exercise.Exercise;
 
 public class CorrectionService {
 
-    public ReflectionResult correct(Template template, List<ClassInfo> studentClasses) {
-        List<ExerciseCorrection> exerciseCorrections = template.getExercises().stream()
-            .map(exercise -> correctExercise(exercise, studentClasses))
-            .collect(Collectors.toList());
+    public ReflectionResult correct(Template template, Student student) {
 
-        return new ReflectionResult(exerciseCorrections);
-    }
+        ReflectionResult reflectionResult = new ReflectionResult(template.getTemplateName());
 
-    private ExerciseCorrection correctExercise(Exercise templateExercise, List<ClassInfo> studentClasses) {
-        List<ClassCorrection> classCorrections = new ArrayList<>();
-        List<String> missingClasses = new ArrayList<>();
-
-        for (ClassInfo templateClass : templateExercise.getClasses()) {
-            Optional<ClassInfo> studentClass = ComparisonUtils.getClassByName(templateClass.getClassName(), studentClasses);
-            if(!studentClass.isPresent()){
-                missingClasses.add(templateClass.getClassName());
-                continue;
-            }
-            classCorrections.add(compareClasses(templateClass, studentClass.get()));
+        if(!student.getCompilationResult().isSuccess()){
+            return reflectionResult;
         }
 
-        return new ExerciseCorrection(templateExercise.getExerciseName(), classCorrections, missingClasses);
+        for (Exercise exercise : template.getExercises()) {
+            reflectionResult.addExerciseCorrection(correctExercise(exercise, student.getClasses()));
+        }
+
+        return reflectionResult;
     }
 
-    private ClassCorrection compareClasses(ClassInfo templateClass, ClassInfo studentClass) {
-        return new ClassCorrection(
-            studentClass.getClassName(),
-            ConstructorService.compareConstructors(templateClass, studentClass),
-            FieldService.compareFields(templateClass, studentClass),
-            MethodService.compareMethods(templateClass, studentClass)
-        );
+    private ExerciseCorrection correctExercise(Exercise exercise, List<Class<?>> studentClasses) {
+
+        ExerciseCorrection exerciseCorrection = new ExerciseCorrection(exercise.getExerciseName());
+
+        for (Class<?> clazz : exercise.getClasses()) {
+            Class<?> studentClass = ComparisonUtils.getClassByName(clazz, studentClasses);
+            exerciseCorrection.addClassCorrection(correctClass(clazz, studentClass));
+        }
+
+        return exerciseCorrection;
+    }
+
+    private ClassCorrection correctClass(Class<?> clazz, Class<?> studentClass) {
+
+        ClassCorrection classCorrection = new ClassCorrection(clazz, studentClass);
+
+        if(studentClass == null){
+            return classCorrection;
+        }
+
+        ConstructorService.correctConstructors(clazz, studentClass, classCorrection);
+        FieldService.correctFields(clazz, studentClass, classCorrection);
+        MethodService.correctMethods(clazz, studentClass, classCorrection);
+
+        return classCorrection;
     }
 }

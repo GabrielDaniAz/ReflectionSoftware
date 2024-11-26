@@ -9,7 +9,6 @@ import com.reflectionsoftware.model.result.correction.exercise.clazz.specificati
 import com.reflectionsoftware.service.pdf.PdfTableService;
 
 public class PdfField {
-    
 
     public static void addFieldSection(Document document, List<FieldCorrection> fields) {
         Paragraph fieldTitle = new Paragraph("Atributos:")
@@ -21,14 +20,15 @@ public class PdfField {
         addMissingFields(document, fields);
 
         // Adiciona tabela de construtores
-        List<String> headers = List.of("Atributo", "Visibilidade", "Modificador", "Tipo", "Nome", "%");
+        List<String> headers = List.of("Atributo", "Visibilidade", "Modificador", "Tipo", "%", "Nota Total", "Nota Obtida");
         List<Function<FieldCorrection, String>> valueExtractors = List.of(
-            field -> field.getFieldName(),
+            field -> field.studentString(),
             field -> field.isVisibilityCorrect() ? "V" : "X",
             field -> field.isModifiersCorrect() ? "V" : "X",
-            field -> field.isTypeCorrect() ? "V" : "X", 
-            field -> field.isNameCorrect() ? "V" : "X",
-            field -> String.valueOf(field.getGrade())
+            field -> field.isTypeCorrect() ? "V" : "X",
+            field -> String.valueOf((int) Math.round(field.getPercentilGrade())),
+            field -> String.format("%.2f", field.getTotalGrade()),
+            field -> String.format("%.2f", field.gradeObtained())
         );
 
         PdfTableService.addTable(document, headers, fields, valueExtractors);

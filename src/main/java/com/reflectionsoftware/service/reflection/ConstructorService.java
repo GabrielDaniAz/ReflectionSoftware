@@ -1,39 +1,33 @@
 package com.reflectionsoftware.service.reflection;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.lang.reflect.Constructor;
 
-import com.reflectionsoftware.model.clazz.ClassInfo;
-import com.reflectionsoftware.model.clazz.specification.ConstructorInfo;
+import com.reflectionsoftware.model.result.correction.exercise.clazz.ClassCorrection;
 import com.reflectionsoftware.model.result.correction.exercise.clazz.specification.ConstructorCorrection;
 
 public class ConstructorService {
 
-    public static List<ConstructorCorrection> compareConstructors(ClassInfo templateClass, ClassInfo studentClass) {
-        List<ConstructorCorrection> constructorCorrections = new ArrayList<>();
+    public static void correctConstructors(Class<?> clazz, Class<?> studentClass, ClassCorrection classCorrection) {
 
-        for (ConstructorInfo templateConstructor : templateClass.getConstructors()) {
-            constructorCorrections.add(compareSingleConstructor(templateConstructor, studentClass));
+        for (Constructor<?> constructor : clazz.getDeclaredConstructors()) {
+            Constructor<?> studentConstructor = ComparisonUtils.getMatchingConstructor(constructor, studentClass);
+            classCorrection.addConstructorCorrection(correctConstructor(constructor, studentConstructor));
         }
 
-        return constructorCorrections;
     }
 
-    private static ConstructorCorrection compareSingleConstructor(ConstructorInfo templateConstructor, ClassInfo studentClass) {
-        Optional<ConstructorInfo> constructorOpt = ComparisonUtils.findConstructor(studentClass, templateConstructor.getParameterTypes());
+    private static ConstructorCorrection correctConstructor(Constructor<?> constructor, Constructor<?> studentConstructor) {
+        ConstructorCorrection constructorCorrection = new ConstructorCorrection(constructor, studentConstructor);
 
-        if(constructorOpt.isPresent()) {
-            ConstructorInfo studentConstructor = constructorOpt.get();
-            return new ConstructorCorrection(
-                templateConstructor,
-                studentConstructor,
-                studentConstructor.getVisibility().equals(templateConstructor.getVisibility()), 
-                studentConstructor.getModifiers().equals(templateConstructor.getModifiers()), 
-                studentConstructor.getName().equals(templateConstructor.getName()), 
-                studentConstructor.getParameterTypes().equals(templateConstructor.getParameterTypes()));
+        if(studentConstructor == null){
+            return constructorCorrection;
         }
 
-        return new ConstructorCorrection(templateConstructor);
+        constructorCorrection.setVisibilityCorrect(ComparisonUtils.checkVisibility(constructor, studentConstructor));
+        constructorCorrection.setModifiersCorrect(ComparisonUtils.checkModifiers(constructor, studentConstructor));
+        constructorCorrection.setParameterTypesCorrect(ComparisonUtils.checkParameterTypes(constructor, studentConstructor));
+        constructorCorrection.setTotalGrade(ComparisonUtils.getTotalGrade(constructor));
+
+        return constructorCorrection;
     }
 }

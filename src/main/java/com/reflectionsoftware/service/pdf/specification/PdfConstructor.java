@@ -20,14 +20,15 @@ public class PdfConstructor {
         addMissingConstructors(document, constructors);
 
         // Adiciona tabela de construtores
-        List<String> headers = List.of("Construtor", "Visibilidade", "Modificador", "Nome", "Parâmetros", "%");
+        List<String> headers = List.of("Construtor", "Visibilidade", "Modificador", "Parâmetros", "%", "Nota Total", "Nota Obtida");
         List<Function<ConstructorCorrection, String>> valueExtractors = List.of(
-            constructor -> constructor.getTemplateConstructor().getParameterTypes(),
+            constructor -> constructor.studentString(),
             constructor -> constructor.isVisibilityCorrect() ? "V" : "X", // Visibilidade
             constructor -> constructor.isModifiersCorrect() ? "V" : "X", // Modificador
-            constructor -> constructor.isNameCorrect() ? "V" : "X", // Nome
             constructor -> constructor.isParameterTypesCorrect() ? "V" : "X", // Parâmetros
-            constructor -> String.valueOf(constructor.getGrade())
+            constructor -> String.valueOf((int) Math.round(constructor.getPercentilGrade())),
+            constructor -> String.format("%.2f", constructor.getTotalGrade()),
+            constructor -> String.format("%.2f", constructor.gradeObtained())
         );
 
         PdfTableService.addTable(document, headers, constructors, valueExtractors);
