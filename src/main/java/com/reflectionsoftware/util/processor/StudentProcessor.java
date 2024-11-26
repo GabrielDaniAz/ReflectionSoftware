@@ -1,6 +1,7 @@
 package com.reflectionsoftware.util.processor;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -10,11 +11,18 @@ import com.reflectionsoftware.model.result.compilation.CompilationResult;
 import com.reflectionsoftware.service.compilation.CompilationService;
 import com.reflectionsoftware.service.file.ClassFileLoader;
 import com.reflectionsoftware.service.file.FileService;
+import com.reflectionsoftware.service.unpacker.DirectoryUnpacker;
 
 public class StudentProcessor {
 
     public static List<Student> processStudentDirectory(File studentRootDirectory) {
         validateStudentRootDirectory(studentRootDirectory);
+
+        try {
+            DirectoryUnpacker.unpackAll(studentRootDirectory);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
         List<Student> students = new ArrayList<>();
         File[] subDirs = studentRootDirectory.listFiles(File::isDirectory);
