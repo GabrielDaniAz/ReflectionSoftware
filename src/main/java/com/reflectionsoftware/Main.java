@@ -11,17 +11,17 @@ public class Main {
             InputValidator.validateArguments(args);
 
             // Converter as strings para objetos File
-            File templateDirectoryOrJson = new File(args[0]);
+            File templateDirectory = new File(args[0]);
             File studentsDirectory = new File(args[1]);
             File pdfDirectory = new File(args[2]);
             String stepCorrection = args[3];
 
             // Criar e iniciar o controlador principal
-            AppController app = new AppController(templateDirectoryOrJson, studentsDirectory, pdfDirectory, stepCorrection);
+            AppController app = new AppController(templateDirectory, studentsDirectory, pdfDirectory, stepCorrection);
             app.start();
 
         } catch (IllegalArgumentException e) {
-            System.err.println("Erro: " + e.getMessage());
+            System.err.println(e.getMessage());
             System.exit(1); // Indica erro de execução
         } catch (Exception e) {
             System.err.println("Erro inesperado: " + e.getMessage());

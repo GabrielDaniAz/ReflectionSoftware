@@ -41,7 +41,6 @@
                 <configuration>
                     <mainClass>com.reflectionsoftware.Main</mainClass>
                     <arguments>
-                        <!-- Argumentos de execução, altere conforme necessário -->
                         <argument>C:/Users/gabri/Dev/Provas/Gabarito</argument>
                         <argument>C:/Users/gabri/Dev/Provas/TodosAlunos</argument>
                         <argument>C:/Users/gabri/OneDrive/Área de Trabalho/PDFsTest</argument>

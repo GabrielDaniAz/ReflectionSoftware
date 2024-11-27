@@ -45,13 +45,11 @@ public class FileService {
         return directory.delete();
     }
 
-    public static void organizeStepDirectories(File baseDirectory, String stepCorrection) {
-        validateDirectoryPath(baseDirectory);
-    
+    public static void organizeStepDirectories(File directory, String stepCorrection) {    
         // Lista as pastas em ordem alfanumérica
-        File[] subDirectories = baseDirectory.listFiles(File::isDirectory);
+        File[] subDirectories = directory.listFiles(File::isDirectory);
         if (subDirectories == null || subDirectories.length == 0) {
-            return; // Não há subpastas para organizar
+            throw new IllegalStateException("O diretório especificado não contém subpastas para organizar: " + directory.getPath());
         }
     
         Arrays.sort(subDirectories, (dir1, dir2) -> dir1.getName().compareToIgnoreCase(dir2.getName()));
