@@ -23,12 +23,7 @@ public class PdfController {
             String pdfFileString = studentName + "_relatorio.pdf";
             File pdfFile = new File(pdfDirectory, pdfFileString);
 
-            try {
-                PdfService.generateCorrectionReport(studentName, student.getReflectionResult(), pdfFile);
-            } catch (Exception e) {
-                System.err.println("Erro ao gerar o relatório para o aluno " + studentName + ": " + e.getMessage());
-                e.printStackTrace();
-            }
+            PdfService.generateCorrectionReport(student, pdfFile);
         }
     }
 }

@@ -1,28 +1,29 @@
-package com.reflectionsoftware.service.unpacker;
+package com.reflectionsoftware.service.file;
+
 import java.io.*;
 import java.nio.file.*;
 import java.util.zip.*;
 
 public class DirectoryUnpacker {
 
-    public static void unpackAll(File directory) throws IOException {
-        Files.walk(directory.toPath())
-                .filter(Files::isRegularFile)
-                .forEach(file -> {
-                    try {
+    public static void unpackAll(File directory) {
+        try {
+            Files.walk(directory.toPath())
+                    .filter(Files::isRegularFile)
+                    .forEach(file -> {
                         if (file.toString().endsWith(".zip")) {
                             unpackZip(file);
                         } else if (file.toString().endsWith(".gz")) {
                             unpackGzip(file);
                         }
-                    } catch (IOException e) {
-                        System.err.println("Erro ao descompactar arquivo: " + file + " - " + e.getMessage());
-                    }
-                });
+                    });
+        } catch (IOException e) {
+            throw new IllegalStateException("Erro ao percorrer os arquivos no diretório: " + directory.getPath() + " - " + e.getMessage());
+        }
     }
 
-    private static void unpackZip(Path zipFile) throws IOException {
-        Path targetDir = zipFile.getParent(); // Diretório onde o ZIP está localizado
+    private static void unpackZip(Path zipFile) {
+        Path targetDir = zipFile.getParent();
 
         try (ZipInputStream zis = new ZipInputStream(new FileInputStream(zipFile.toFile()))) {
             ZipEntry entry;
@@ -38,14 +39,18 @@ public class DirectoryUnpacker {
                 }
                 zis.closeEntry();
             }
+        } catch (IOException e) {
+            throw new IllegalStateException("Erro ao descompactar o arquivo ZIP: " + zipFile + " - " + e.getMessage());
         }
     }
 
-    private static void unpackGzip(Path gzipFile) throws IOException {
+    private static void unpackGzip(Path gzipFile) {
         Path outputFile = gzipFile.getParent().resolve(gzipFile.getFileName().toString().replaceFirst("[.][^.]+$", ""));
         try (GZIPInputStream gzis = new GZIPInputStream(new FileInputStream(gzipFile.toFile()));
              OutputStream os = Files.newOutputStream(outputFile)) {
             gzis.transferTo(os);
+        } catch (IOException e) {
+            throw new IllegalStateException("Erro ao descompactar o arquivo GZIP: " + gzipFile + " - " + e.getMessage());
         }
     }
 }

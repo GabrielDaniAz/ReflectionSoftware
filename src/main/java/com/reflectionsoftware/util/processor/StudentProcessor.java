@@ -1,7 +1,6 @@
 package com.reflectionsoftware.util.processor;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -11,21 +10,13 @@ import com.reflectionsoftware.model.result.compilation.CompilationResult;
 import com.reflectionsoftware.service.compilation.CompilationService;
 import com.reflectionsoftware.service.file.ClassFileLoader;
 import com.reflectionsoftware.service.file.FileService;
-import com.reflectionsoftware.service.unpacker.DirectoryUnpacker;
-
 public class StudentProcessor {
 
     public static List<Student> processStudentDirectory(File studentRootDirectory) {
-        validateStudentRootDirectory(studentRootDirectory);
-
-        try {
-            DirectoryUnpacker.unpackAll(studentRootDirectory);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        FileService.unpackAll(studentRootDirectory);
 
         List<Student> students = new ArrayList<>();
-        File[] subDirs = studentRootDirectory.listFiles(File::isDirectory);
+        File[] subDirs = FileService.getDirectSubdirectories(studentRootDirectory);
 
         for (File subDir : subDirs) {
             Student student = processSingleStudentDirectory(subDir);
@@ -37,17 +28,10 @@ public class StudentProcessor {
         return students;
     }
 
-    private static void validateStudentRootDirectory(File studentRootDirectory) {
-        File[] subDirs = studentRootDirectory.listFiles(File::isDirectory);
-        if (subDirs == null || subDirs.length == 0) {
-            throw new IllegalArgumentException("Nenhum subdiretório de aluno encontrado em: " + studentRootDirectory.getPath());
-        }
-    }
-
     private static Student processSingleStudentDirectory(File studentDirectory) {
         String studentName = getStudentName(studentDirectory.getName());
-        List<File> javaFiles = FileService.getAllJavaFiles(studentDirectory);
-        List<File> jarFiles = FileService.getAllJarFiles(studentDirectory);
+        List<File> javaFiles = FileService.getFilesWithExtension(studentDirectory, ".java");
+        List<File> jarFiles = FileService.getFilesWithExtension(studentDirectory, ".jar");
 
         if (javaFiles.isEmpty()) {
             System.err.println("Nenhum arquivo Java encontrado no diretório: " + studentName);
@@ -60,18 +44,10 @@ public class StudentProcessor {
             return new Student(studentName, Collections.emptyList(), compilationResult);
         }
 
-        List<Class<?>> loadedClasses = loadCompiledClasses(compilationResult, studentName);
+        List<Class<?>> loadedClasses = ClassFileLoader.loadClasses(compilationResult.getCompilationDirectory(), 
+                                        compilationResult.getCompiledFiles(), compilationResult.getJarFiles());
+                                        
         return new Student(studentName, loadedClasses, compilationResult);
-    }
-
-    private static List<Class<?>> loadCompiledClasses(CompilationResult compilationResult, String studentName) {
-        try {
-            return ClassFileLoader.loadClasses(compilationResult.getCompilationDirectory(), compilationResult.getCompiledFiles(), compilationResult.getJarFiles());
-        } catch (Exception e) {
-            System.err.println("Erro ao carregar classes do aluno: " + studentName);
-            e.printStackTrace();
-            return Collections.emptyList();
-        }
     }
 
     private static String getStudentName(String studentName){

@@ -10,14 +10,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.reflectionsoftware.util.validator.FileValidator;
+
 public class FileService {
 
     // --- Métodos de Manipulação de Diretório ---
 
-    public static void createDirectory(File directory) {
-        if (!directory.exists()) {
-            directory.mkdirs();
-        }
+    public static boolean createDirectory(File directory) {  
+        return directory.mkdirs();
     }
 
     public static void removeDirectory(File directory) {
@@ -108,16 +108,14 @@ public class FileService {
 
     public static List<File> getAllJavaFiles(File directory) {
         List<File> javaFiles = new ArrayList<>();
-        if (directory.exists() && directory.isDirectory()) {
-            File[] files = directory.listFiles();
-            if (files != null) {
-                for (File file : files) {
-                    if (file.isDirectory() && file.getName().equals("bin")) continue;
-                    if (file.isDirectory()) {
-                        javaFiles.addAll(getAllJavaFiles(file));
-                    } else if (file.isFile() && file.getName().endsWith(".java")) {
-                        javaFiles.add(file);
-                    }
+        File[] files = directory.listFiles();
+        if (files != null) {
+            for (File file : files) {
+                if (file.isDirectory()) {
+                    if (file.getName().equals("bin")) continue;
+                    javaFiles.addAll(getAllJavaFiles(file));
+                } else if (file.isFile() && file.getName().endsWith(".java")) {
+                    javaFiles.add(file);
                 }
             }
         }
@@ -142,6 +140,31 @@ public class FileService {
         return jarFiles;
     }
 
+
+    // Método generalizado para buscar arquivos com a extensão fornecida
+    public static List<File> getFilesWithExtension(File directory, String extension) {
+        List<File> filesWithExtension = new ArrayList<>();
+        
+        if (!FileValidator.isDirectory(directory)) return filesWithExtension;
+
+        File[] files = directory.listFiles();
+        if (files != null) {
+            for (File file : files) {
+                if (file.isDirectory()) {
+                    // Ignorar a pasta "bin"
+                    if (file.getName().equals("bin")) continue;
+                    // Chama recursivamente para subdiretórios
+                    filesWithExtension.addAll(getFilesWithExtension(file, extension));
+                } else if (file.isFile() && file.getName().endsWith(extension)) {
+                    // Adiciona arquivo que tem a extensão especificada
+                    filesWithExtension.add(file);
+                }
+            }
+        }
+        return filesWithExtension;
+    }
+
+
     private static void validateDirectoryPath(File directory) {
         if (!directory.exists() || !directory.isDirectory()) {
             throw new IllegalArgumentException("O caminho fornecido não é um diretório válido.");
@@ -160,5 +183,17 @@ public class FileService {
             }
         }
         return subdirectoryList;
+    }
+
+    public static File[] getDirectSubdirectories(File directory) {
+        return (directory != null && directory.isDirectory()) 
+                ? directory.listFiles(File::isDirectory) 
+                : new File[0];
+    }
+
+    public static void unpackAll(File directory) {
+        if(FileValidator.hasCompressedFile(directory)){
+            DirectoryUnpacker.unpackAll(directory);
+        }
     }
 }
