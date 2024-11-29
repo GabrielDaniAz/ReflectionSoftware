@@ -1,38 +1,27 @@
 package com.reflectionsoftware.model.result.correction;
 
-import java.util.ArrayList;
 import java.util.List;
-
+import java.util.stream.Collectors;
 import com.reflectionsoftware.model.result.correction.exercise.ExerciseCorrection;
+import com.reflectionsoftware.model.template.Template;
 
-public class ReflectionResult {
+public class ReflectionResult implements Correction{
     private final String templateName;
-    private List<ExerciseCorrection> exerciseCorrections;
+    private final List<ExerciseCorrection> exercises;
 
-    public ReflectionResult(String templateName){
-        this.templateName = templateName;
+    public ReflectionResult(Template template, List<Class<?>> studentClasses) {
+        this.templateName = template.getTemplateName();
+        this.exercises = initializeExercises(template, studentClasses);
+    }
 
-        this.exerciseCorrections = new ArrayList<>();
+    private List<ExerciseCorrection> initializeExercises(Template template, List<Class<?>> studentClasses) {
+        return template.getExercises().stream()
+                .map(exercise -> new ExerciseCorrection(exercise, studentClasses))
+                .collect(Collectors.toList());
     }
 
     public String getTemplateName() { return templateName; }
-    public List<ExerciseCorrection> getExerciseCorrections() { return exerciseCorrections; }
-    public void addExerciseCorrection(ExerciseCorrection exerciseCorrection) { this.exerciseCorrections.add(exerciseCorrection); }
-
-    @Override
-    public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append("Resultado da Reflexão para o Template: ").append(templateName).append("\n");
-        sb.append("Correções de Exercícios:\n");
-
-        if (exerciseCorrections == null || exerciseCorrections.isEmpty()) {
-            sb.append("  Nenhum exercício corrigido.\n");
-        } else {
-            for (ExerciseCorrection correction : exerciseCorrections) {
-                sb.append("  ").append(correction).append("\n");
-            }
-        }
-
-        return sb.toString();
-    }
+    public List<ExerciseCorrection> getExercises() { return exercises; }
+    public double getGrade() { return exercises.stream().mapToDouble(ExerciseCorrection::getGrade).sum(); }
+    public double getObtainedGrade() { return exercises.stream().mapToDouble(ExerciseCorrection::getObtainedGrade).sum(); }
 }

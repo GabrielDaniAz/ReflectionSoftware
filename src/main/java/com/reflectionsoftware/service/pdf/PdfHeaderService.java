@@ -7,10 +7,11 @@ import com.itextpdf.layout.properties.TextAlignment;
 import com.itextpdf.layout.element.Cell;
 import com.itextpdf.layout.properties.UnitValue;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 
 public class PdfHeaderService {
 
-    public static void addHeader(Document document, String studentName, double grade) {
+    public static void addHeader(Document document, String studentName, String grade) {
         // Título do relatório
         Paragraph title = new Paragraph("Relatório de Correção de Exercícios")
                 .setFontSize(18)
@@ -28,11 +29,11 @@ public class PdfHeaderService {
 
         // Adiciona a célula para "Data"
         table.addCell(createCell("Data:"));
-        table.addCell(createCell(LocalDate.now().toString()));
+        table.addCell(createCell(LocalDate.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy"))));
 
         // Adiciona a célula para "Nota"
         table.addCell(createCell("Nota:"));
-        table.addCell(createCell(String.format("%.2f", grade)));
+        table.addCell(createCell(grade));
 
         // Adiciona a tabela ao documento
         document.add(table);

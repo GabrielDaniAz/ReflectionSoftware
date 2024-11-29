@@ -19,7 +19,18 @@ public class PdfService {
             Document document = new Document(pdf, PageSize.A4);
             document.setMargins(20, 20, 20, 20);
 
-            PdfHeaderService.addHeader(document, student.getName(), 0);
+            double grade = 0.0;
+            double obtainedGrade = 0.0;
+
+            if (student.getReflectionResult() != null) {
+                grade = student.getReflectionResult().getGrade();
+                obtainedGrade = student.getReflectionResult().getObtainedGrade();
+            }
+
+            String gradeString = String.format("%.2f / %.2f", obtainedGrade, grade);
+
+
+            PdfHeaderService.addHeader(document, student.getName(), gradeString);
 
             if(!student.getCompilationResult().isSuccess()){
                 document.add(new Paragraph(student.getCompilationResult().getDiagnostics().toString()));

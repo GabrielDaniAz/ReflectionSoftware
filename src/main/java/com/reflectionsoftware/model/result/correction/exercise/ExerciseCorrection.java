@@ -1,62 +1,52 @@
 package com.reflectionsoftware.model.result.correction.exercise;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
-
+import com.reflectionsoftware.model.result.correction.Correction;
 import com.reflectionsoftware.model.result.correction.exercise.clazz.ClassCorrection;
+import com.reflectionsoftware.model.template.exercise.Exercise;
+import com.reflectionsoftware.util.reflection.ClassMapper;
 
-public class ExerciseCorrection {
-    
-    private String exerciseName;
-    private List<ClassCorrection> classCorrections;
 
-    public ExerciseCorrection(String exerciseName) {
-        this.exerciseName = exerciseName;
+public class ExerciseCorrection implements Correction {
+    private final String exerciseName;
+    private final List<ClassCorrection> classes;
 
-        this.classCorrections = new ArrayList<>();
+    public ExerciseCorrection(Exercise exercise, List<Class<?>> studentClasses) {
+        this.exerciseName = exercise.getExerciseName();
+        this.classes = initializeClasses(exercise.getClasses(), studentClasses);
+    }
+
+    private List<ClassCorrection> initializeClasses(List<Class<?>> templateClasses, List<Class<?>> studentClasses) {
+        HashMap<Class<?>, Class<?>> mappedClasses = ClassMapper.mapClasses(templateClasses, studentClasses);
+        List<ClassCorrection> corrections = new ArrayList<>();
+        mappedClasses.forEach((template, student) -> corrections.add(new ClassCorrection(template, student)));
+        return corrections;
     }
 
     public String getExerciseName() { return exerciseName; }
-    public List<ClassCorrection> getClassCorrections() { return classCorrections; }
+    public List<ClassCorrection> getAllClasses() { return classes; }
+    public List<ClassCorrection> getCorrectedClasses() {
+        List<ClassCorrection> classesList = new ArrayList<>();
+        for (ClassCorrection c : classes) {
+            if(c.getTemplate() == null || c.getStudent() == null) continue;
+            classesList.add(c);
+        }
+        return classesList;
+    }
+    public double getGrade() { return classes.stream().mapToDouble(ClassCorrection::getGrade).sum(); }
+    public double getObtainedGrade() { return classes.stream().mapToDouble(ClassCorrection::getObtainedGrade).sum(); }
 
     public List<String> getMissingClasses() {
-        List<String> missingClasses = new ArrayList<>();
+        List<String> missing = new ArrayList<>();
 
-        for (ClassCorrection classCorrection : classCorrections) {
-            if(classCorrection.getStudentClass() == null) {
-                missingClasses.add(classCorrection.getTemplateClass().getSimpleName());
+        for (ClassCorrection c : classes) {
+            if(c.getStudent() == null){
+                missing.add(c.getTemplate().getSimpleName());
             }
         }
-
-        return missingClasses;
-    }
-    
-    public void addClassCorrection(ClassCorrection classCorrection) { this.classCorrections.add(classCorrection); }
-
-    @Override
-    public String toString() {
-        StringBuilder sb = new StringBuilder();
-    
-        sb.append("Exercício: ").append(exerciseName).append("\n");
-    
-        sb.append("Classes:\n");
-        if (classCorrections.isEmpty()) {
-            sb.append("  Nenhuma classe para correção.\n");
-        } else {
-            for (ClassCorrection correction : classCorrections) {
-                sb.append("  - ").append(correction.toString()).append("\n");
-            }
-        }
-    
-        sb.append("Classes ausentes:\n");
-        if (getMissingClasses().isEmpty()) {
-            sb.append("  Nenhuma classe ausente.\n");
-        } else {
-            for (String missingClass : getMissingClasses()) {
-                sb.append("  - ").append(missingClass).append("\n");
-            }
-        }
-    
-        return sb.toString();
+        
+        return missing;
     }
 }

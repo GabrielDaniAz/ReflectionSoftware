@@ -6,7 +6,6 @@ import java.util.List;
 import com.reflectionsoftware.model.Student;
 import com.reflectionsoftware.model.template.Template;
 import com.reflectionsoftware.service.file.FileService;
-import com.reflectionsoftware.service.reflection.CorrectionService;
 import com.reflectionsoftware.util.processor.StudentProcessor;
 import com.reflectionsoftware.util.processor.TemplateProcessor;
 
@@ -29,8 +28,7 @@ public class AppController {
         Template template = TemplateProcessor.processTemplateDirectory(templateDirectory);
         List<Student> students = StudentProcessor.processStudentDirectory(studentsDirectory);
 
-        CorrectionService correctionService = new CorrectionService();
-        CorrectionController correctionController = new CorrectionController(template, students, correctionService);
+        CorrectionController correctionController = new CorrectionController(template, students);
         correctionController.start();
 
         PdfController pdfController = new PdfController(students, pdfDirectory);

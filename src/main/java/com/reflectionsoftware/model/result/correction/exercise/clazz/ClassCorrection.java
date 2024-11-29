@@ -1,78 +1,89 @@
 package com.reflectionsoftware.model.result.correction.exercise.clazz;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
+import com.reflectionsoftware.model.result.correction.SpecificationElement;
 import com.reflectionsoftware.model.result.correction.exercise.clazz.specification.ConstructorCorrection;
 import com.reflectionsoftware.model.result.correction.exercise.clazz.specification.FieldCorrection;
 import com.reflectionsoftware.model.result.correction.exercise.clazz.specification.MethodCorrection;
+import com.reflectionsoftware.util.reflection.ElementMapper;
 
 public class ClassCorrection {
+    private final Class<?> template;
+    private final Class<?> student;
 
-    private Class<?> templateClass;
-    private Class<?> studentClass;
+    private final List<SpecificationElement<?>> elements;
 
-    private List<ConstructorCorrection> constructorCorrections;
-    private List<FieldCorrection> fieldCorrections;
-    private List<MethodCorrection> methodCorrections;
+    public ClassCorrection(Class<?> template, Class<?> student) {
+        this.template = template;
+        this.student = student;
 
-    public ClassCorrection(Class<?> templateClass, Class<?> studentClass) {
-        this.templateClass = templateClass;
-        this.studentClass = studentClass;
-
-        this.constructorCorrections = new ArrayList<>();
-        this.fieldCorrections = new ArrayList<>();
-        this.methodCorrections = new ArrayList<>();
+        this.elements = initializeElements(template, student);
     }
 
-    public Class<?> getTemplateClass(){ return templateClass; }
-    public Class<?> getStudentClass(){ return studentClass; }
+    private List<SpecificationElement<?>> initializeElements(Class<?> template, Class<?> student) {
+        List<SpecificationElement<?>> elementList = new ArrayList<>();
 
-    public List<ConstructorCorrection> getConstructorCorrections(){ return constructorCorrections; }
-    public List<FieldCorrection> getFieldCorrections(){ return fieldCorrections; }
-    public List<MethodCorrection> getMethodCorrections(){ return methodCorrections; }
+        HashMap<Object, Object> mappedElements = ElementMapper.mapElements(template, student);
 
-    public void addConstructorCorrection(ConstructorCorrection constructorCorrection){ this.constructorCorrections.add(constructorCorrection); }
-    public void addFieldCorrection(FieldCorrection fieldCorrection){ this.fieldCorrections.add(fieldCorrection); }
-    public void addMethodCorrection(MethodCorrection methodCorrection){ this.methodCorrections.add(methodCorrection); }
-
-    @Override
-    public String toString() {
-        StringBuilder sb = new StringBuilder();
-
-        sb.append("Correção da Classe\n");
-        sb.append("Classe do Template: ").append(templateClass != null ? templateClass.getSimpleName() : "Não definida").append("\n");
-        sb.append("Classe do Estudante: ").append(studentClass != null ? studentClass.getSimpleName() : "Não definida").append("\n");
-        
-        sb.append("\nConstrutores:\n");
-        if (constructorCorrections == null || constructorCorrections.isEmpty()) {
-            sb.append("  Nenhuma correção de construtor.\n");
-        } else {
-            for (ConstructorCorrection correction : constructorCorrections) {
-                sb.append("  ").append(correction).append("\n");
+        mappedElements.forEach((templateElement, studentElement) -> {
+            if (templateElement instanceof Field || studentElement instanceof Field) {
+                elementList.add(new FieldCorrection(
+                        (Field) templateElement, 
+                        (Field) studentElement));
+            } else if (templateElement instanceof Method || studentElement instanceof Method) {
+                elementList.add(new MethodCorrection(
+                        (Method) templateElement, 
+                        (Method) studentElement));
+            } else if (templateElement instanceof Constructor<?> || studentElement instanceof Constructor<?>) {
+                elementList.add(new ConstructorCorrection(
+                        (Constructor<?>) templateElement, 
+                        (Constructor<?>) studentElement));
             }
-        }
+        });
 
-        sb.append("\nAtributos:\n");
-        if (fieldCorrections == null || fieldCorrections.isEmpty()) {
-            sb.append("  Nenhuma correção de campo.\n");
-        } else {
-            for (FieldCorrection correction : fieldCorrections) {
-                sb.append("  ").append(correction).append("\n");
-            }
-        }
-
-        sb.append("\nMétodos:\n");
-        if (methodCorrections == null || methodCorrections.isEmpty()) {
-            sb.append("  Nenhuma correção de método.\n");
-        } else {
-            for (MethodCorrection correction : methodCorrections) {
-                sb.append("  ").append(correction).append("\n");
-            }
-        }
-
-        return sb.toString();
+        return elementList;
     }
 
+    public Class<?> getTemplate() { return template; }
+    public Class<?> getStudent() { return student; }
+    public List<SpecificationElement<?>> getElements() { return elements; }
+    
+    public List<SpecificationElement<?>> getCorrectedElements() {
+        List<SpecificationElement<?>> corrected = new ArrayList<>();
+        for (SpecificationElement<?> e : elements) {
+            if (!e.hasTemplate()) continue;
+            corrected.add(e);
+        }
+        return corrected;
+    }
+
+    public double getGrade() {
+        return elements.stream()
+                .mapToDouble(SpecificationElement::getGrade)
+                .sum();
+    }
+
+    public double getObtainedGrade() {
+        return elements.stream()
+                .mapToDouble(SpecificationElement::getObtainedGrade)
+                .sum();
+    }
+
+    public List<String> getMissingElements() {
+        List<String> missing = new ArrayList<>();
+
+        for (SpecificationElement<?> element : elements) {
+            if (!element.hasStudent() && element.hasTemplate()) {
+                missing.add(element.toString());
+            }
+        }
+
+        return missing;
+    }
 }
-

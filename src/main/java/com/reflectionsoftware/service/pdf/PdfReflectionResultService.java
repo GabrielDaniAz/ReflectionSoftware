@@ -10,7 +10,7 @@ import com.reflectionsoftware.model.result.correction.exercise.clazz.ClassCorrec
 public class PdfReflectionResultService {
 
     public static void addReflectionResult(Document document, ReflectionResult reflectionResult) {
-        for (ExerciseCorrection exercise : reflectionResult.getExerciseCorrections()) {
+        for (ExerciseCorrection exercise : reflectionResult.getExercises()) {
             Paragraph stepTitle = new Paragraph("Exercício `" + exercise.getExerciseName() + "`:")
                     .setFontSize(16)
                     .setBold()
@@ -25,7 +25,9 @@ public class PdfReflectionResultService {
                 document.add(missingClasses);
             }
 
-            for (ClassCorrection classCorrection : exercise.getClassCorrections()) {
+            System.out.println("tamanho da lista corrigida: " + exercise.getCorrectedClasses().size());
+            for (ClassCorrection classCorrection : exercise.getCorrectedClasses()) {
+                System.out.println(classCorrection.getGrade());
                 PdfClassCorrection.addClassCorrection(document, classCorrection);
             }
         }
