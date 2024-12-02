@@ -57,7 +57,7 @@ public class ClassCorrection {
     public List<SpecificationElement<?>> getCorrectedElements() {
         List<SpecificationElement<?>> corrected = new ArrayList<>();
         for (SpecificationElement<?> e : elements) {
-            if (!e.hasTemplate()) continue;
+            if (!e.hasTemplate() || !e.hasStudent()) continue;
             corrected.add(e);
         }
         return corrected;
@@ -75,12 +75,12 @@ public class ClassCorrection {
                 .sum();
     }
 
-    public List<String> getMissingElements() {
-        List<String> missing = new ArrayList<>();
+    public List<SpecificationElement<?>> getMissingElements() {
+        List<SpecificationElement<?>> missing = new ArrayList<>();
 
         for (SpecificationElement<?> element : elements) {
             if (!element.hasStudent() && element.hasTemplate()) {
-                missing.add(element.toString());
+                missing.add(element);
             }
         }
 

@@ -39,9 +39,4 @@ public class FieldCorrection extends SpecificationElement<Field>{
 
         return student.getName();
     }
-
-    @Override
-    public String toString() {
-        return "Implementar";
-    }
 }

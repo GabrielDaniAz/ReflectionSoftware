@@ -37,14 +37,9 @@ public class ConstructorCorrection extends SpecificationElement<Constructor<?>> 
         return convertParameterTypesToString(student);
     }
 
-    @Override
-    public String toString() {
-        return "Implementar";
-    }
-
     private String convertParameterTypesToString(Constructor<?> constructor) {
         Class<?>[] parameterTypes = constructor.getParameterTypes();
-        StringBuilder sb = new StringBuilder();
+        StringBuilder sb = new StringBuilder("(");
 
         for (Class<?> paramType : parameterTypes) {
             sb.append(paramType.getSimpleName()).append(", ");
@@ -54,6 +49,8 @@ public class ConstructorCorrection extends SpecificationElement<Constructor<?>> 
         if (sb.length() > 0) {
             sb.setLength(sb.length() - 2);
         }
+
+        sb.append(")");
 
         return sb.toString();
     }

@@ -18,25 +18,27 @@ public class PdfElement {
         List<SpecificationElement<?>> methods = ElementFilter.getElementsByType(elements, ElementType.METHOD);
 
         // Adiciona o título da seção (diferente para cada tipo de elemento)
-        addSectionTitle(document, "Construtores", constructors);
-        addTableForConstructors(document, constructors);
-
-        addSectionTitle(document, "Atributos", fields);
-        addTableForFields(document, fields);
-
-        addSectionTitle(document, "Métodos", methods);
-        addTableForMethods(document, methods);
+        if(!constructors.isEmpty()){
+            addSectionTitle(document, "Construtores", constructors);
+            addTableForConstructors(document, constructors);
+        }
+        if(!fields.isEmpty()){
+            addSectionTitle(document, "Atributos", fields);
+            addTableForFields(document, fields);
+        }
+        if(!methods.isEmpty()){
+            addSectionTitle(document, "Métodos", methods);
+            addTableForMethods(document, methods);
+        }
     }
 
     // Método auxiliar para adicionar o título da seção
     private static void addSectionTitle(Document document, String sectionTitle, List<SpecificationElement<?>> elements) {
-        if (!elements.isEmpty()) {
-            Paragraph sectionTitleParagraph = new Paragraph(sectionTitle)
-                    .setBold()
-                    .setFontSize(14)
-                    .setMarginTop(7);
-            document.add(sectionTitleParagraph);
-        }
+        Paragraph sectionTitleParagraph = new Paragraph(sectionTitle)
+                .setBold()
+                .setFontSize(14)
+                .setMarginTop(7);
+        document.add(sectionTitleParagraph);
     }
 
     // Adiciona tabela para os construtores

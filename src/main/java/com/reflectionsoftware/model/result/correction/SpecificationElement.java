@@ -48,6 +48,10 @@ public abstract class SpecificationElement<T> implements ISpecificationElement{
     @Override
     public abstract String studentString();
 
-    @Override 
-    public abstract String toString();
+    @Override
+    public String toString() {
+        if(hasTemplate()) return templateString();
+        if(hasStudent()) return studentString();
+        return "";
+    }
 }

@@ -6,7 +6,6 @@ import com.itextpdf.layout.element.Paragraph;
 import com.reflectionsoftware.model.result.correction.ReflectionResult;
 import com.reflectionsoftware.model.result.correction.exercise.ExerciseCorrection;
 import com.reflectionsoftware.model.result.correction.exercise.clazz.ClassCorrection;
-
 public class PdfReflectionResultService {
 
     public static void addReflectionResult(Document document, ReflectionResult reflectionResult) {
@@ -25,9 +24,7 @@ public class PdfReflectionResultService {
                 document.add(missingClasses);
             }
 
-            System.out.println("tamanho da lista corrigida: " + exercise.getCorrectedClasses().size());
             for (ClassCorrection classCorrection : exercise.getCorrectedClasses()) {
-                System.out.println(classCorrection.getGrade());
                 PdfClassCorrection.addClassCorrection(document, classCorrection);
             }
         }

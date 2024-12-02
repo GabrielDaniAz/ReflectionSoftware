@@ -40,9 +40,4 @@ public class MethodCorrection extends SpecificationElement<Method>{
 
         return student.getName();
     }
-
-    @Override
-    public String toString() {
-        return "Implementar";
-    }
 }
