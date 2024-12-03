@@ -21,6 +21,7 @@ O software automatiza o processo de avaliação de exercícios práticos de POO.
 
 4. **Atribuição de Notas**:
    - Usa a anotação `@Nota` do pacote `com.gabrieldani` para atribuir pontuações específicas a cada elemento (atributos, métodos e construtores).
+   - Usa a anotação `@Especificacao` do pacote `com.gabrieldani` para atribuir a similaridade dos nomes e se os atributos devem ser privados.
 
 5. **Geração de Relatórios em PDF**:
    - Gera relatórios detalhados para cada aluno, contendo informações sobre a compilação e os erros encontrados, além de incluir o nome do aluno no cabeçalho do PDF.
@@ -43,6 +44,15 @@ O software automatiza o processo de avaliação de exercícios práticos de POO.
         // Exemplo de método anotado com nota
     }
     ```
+
+- **Anotação `Especificacao`**:
+   - Utilize a biblioteca `com.gabrieldani` para definir atributos e similaridade dos nomes:
+   ```java
+   @Especificacao(atributos = false, construtores = true, similaridade = 0.7) // construtores está presente mas penso em retirar.
+   public class Classe {
+      //Exemplo de classe anotado com Especificação
+   }
+   ```
 
 - **Baixando a Biblioteca**:
   - Faça o download da biblioteca `com.gabrieldani` no seguinte link: [ReflectionLib v1.0.1](https://github.com/GabrielDaniAz/ReflectionLib/releases/tag/v1.0.1).
