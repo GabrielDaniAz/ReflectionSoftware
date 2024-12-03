@@ -34,11 +34,6 @@
                         <argument>${arg2}</argument>
                         <argument>${arg3}</argument>
                         <argument>${arg4}</argument>
-                        <!-- mvn exec:java -Darg1="C:/Users/gabri/Dev/Provas/Gabarito" -Darg2="C:/Users/gabri/Dev/Provas/2Alunos" -Darg3="C:/Users/gabri/OneDrive/Área de Trabalho/PDFsTest" -Darg4="1" -->
-                        <!-- <argument>C:/Users/gabri/Dev/Provas/Gabarito</argument>
-                        <argument>C:/Users/gabri/Dev/Provas/2Alunos</argument>
-                        <argument>C:/Users/gabri/OneDrive/Área de Trabalho/PDFsTest</argument>
-                        <argument>1</argument> -->
                     </arguments>
                 </configuration>
             </plugin>
@@ -52,6 +47,31 @@
                     <target>22</target>
                 </configuration>
             </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <version>3.4.0</version>
+                <configuration>
+                    <archive>
+                        <manifest>
+                            <mainClass>com.reflectionsoftware.Main</mainClass>
+                        </manifest>
+                    </archive>
+                    <descriptorRefs>
+                        <descriptorRef>jar-with-dependencies</descriptorRef>
+                    </descriptorRefs>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>make-assembly</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
         </plugins>
     </build>
 </project>
