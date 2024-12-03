@@ -5,8 +5,8 @@ import java.util.function.Function;
 import com.itextpdf.layout.Document;
 import com.itextpdf.layout.element.Paragraph;
 import com.reflectionsoftware.model.result.correction.SpecificationElement;
-import com.reflectionsoftware.util.reflection.ElementFilter;
-import com.reflectionsoftware.util.reflection.ElementFilter.ElementType;
+import com.reflectionsoftware.util.reflection.element.ElementFilter;
+import com.reflectionsoftware.util.reflection.element.ElementFilter.ElementType;
 
 public class PdfElement {
 

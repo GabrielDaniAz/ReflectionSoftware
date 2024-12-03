@@ -6,16 +6,21 @@ import com.reflectionsoftware.model.result.correction.SpecificationElement;
 
 public class FieldCorrection extends SpecificationElement<Field>{
 
+    private boolean allFieldsPrivate;
+
     // private static int ano;
     // visibility modifier type name
-    public FieldCorrection(Field template, Field student) {
+    public FieldCorrection(Field template, Field student, boolean allFieldsPrivate) {
         super(template, student);
+        this.allFieldsPrivate = allFieldsPrivate;
     }
 
     public double getObtainedGrade() {
         double score = 0;
 
-        if (checkVisibility()) score += 0.3;
+        if (allFieldsPrivate) {
+            if (checkVisibility()) { score += 0.3; }
+        } else { score += 0.3; }
         if (checkModifiers()) score += 0.3;
         if (checkType()) score += 0.4;
 

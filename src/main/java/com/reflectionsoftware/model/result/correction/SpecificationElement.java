@@ -1,6 +1,6 @@
 package com.reflectionsoftware.model.result.correction;
 
-import com.reflectionsoftware.util.reflection.ElementUtils;
+import com.reflectionsoftware.util.reflection.element.ElementUtils;
 
 public abstract class SpecificationElement<T> implements ISpecificationElement{
     

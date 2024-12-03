@@ -8,8 +8,8 @@ import com.itextpdf.layout.element.Paragraph;
 import com.itextpdf.layout.properties.TextAlignment;
 import com.reflectionsoftware.model.result.correction.SpecificationElement;
 import com.reflectionsoftware.model.result.correction.exercise.clazz.ClassCorrection;
-import com.reflectionsoftware.util.reflection.ElementFilter;
-import com.reflectionsoftware.util.reflection.ElementFilter.ElementType;
+import com.reflectionsoftware.util.reflection.element.ElementFilter;
+import com.reflectionsoftware.util.reflection.element.ElementFilter.ElementType;
 
 public class PdfClassCorrection {
 

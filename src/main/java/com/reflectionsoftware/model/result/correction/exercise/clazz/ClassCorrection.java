@@ -11,7 +11,8 @@ import com.reflectionsoftware.model.result.correction.SpecificationElement;
 import com.reflectionsoftware.model.result.correction.exercise.clazz.specification.ConstructorCorrection;
 import com.reflectionsoftware.model.result.correction.exercise.clazz.specification.FieldCorrection;
 import com.reflectionsoftware.model.result.correction.exercise.clazz.specification.MethodCorrection;
-import com.reflectionsoftware.util.reflection.ElementMapper;
+import com.reflectionsoftware.util.reflection.element.ElementMapper;
+import com.reflectionsoftware.util.reflection.element.ElementUtils;
 
 public class ClassCorrection {
     private final Class<?> template;
@@ -35,7 +36,8 @@ public class ClassCorrection {
             if (templateElement instanceof Field || studentElement instanceof Field) {
                 elementList.add(new FieldCorrection(
                         (Field) templateElement, 
-                        (Field) studentElement));
+                        (Field) studentElement,
+                        allFieldsPrivate()));
             } else if (templateElement instanceof Method || studentElement instanceof Method) {
                 elementList.add(new MethodCorrection(
                         (Method) templateElement, 
@@ -73,6 +75,10 @@ public class ClassCorrection {
         return elements.stream()
                 .mapToDouble(SpecificationElement::getObtainedGrade)
                 .sum();
+    }
+
+    public boolean allFieldsPrivate() {
+        return ElementUtils.allFieldsPrivate(template);
     }
 
     public List<SpecificationElement<?>> getMissingElements() {

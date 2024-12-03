@@ -1,4 +1,4 @@
-package com.reflectionsoftware.util.reflection;
+package com.reflectionsoftware.util.reflection.element;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.*;
@@ -31,12 +31,17 @@ public class ElementUtils {
 
     public static boolean checkParameters(Object template, Object student) {
         if (!canValidateParameters(template, student)) return false;
-
+    
         Class<?>[] templateParams = getParameterTypes(template);
         Class<?>[] studentParams = getParameterTypes(student);
-
+    
+        // Ordena os parâmetros de ambos os lados antes de compará-los
+        Arrays.sort(templateParams, (a, b) -> a.getName().compareTo(b.getName()));
+        Arrays.sort(studentParams, (a, b) -> a.getName().compareTo(b.getName()));
+    
         return Arrays.equals(templateParams, studentParams);
     }
+    
 
     public static boolean checkReturnType(Object template, Object student) {
         if (!canValidateReturnType(template, student)) return false;
@@ -74,6 +79,48 @@ public class ElementUtils {
         }
 
         return 0.0;
+    }
+
+    public static boolean allFieldsPrivate(Object element) {
+        if(element == null) return true;
+
+        if(!(element instanceof AnnotatedElement)) return true;
+
+        AnnotatedElement annotatedElement = (AnnotatedElement) element;
+
+        for (Annotation annotation : annotatedElement.getAnnotations()) {
+            if(annotation.annotationType().getSimpleName().equals("Especificacao")){
+                try{
+                    return (boolean) annotation.annotationType().getMethod("atributo").invoke(annotation);
+                } catch(Exception e) {
+                    return true;
+                }
+            }
+        }
+
+        return true;
+    }
+
+    public static double getSimilarityThreshold(Class<?> clazz) {
+        double DEFAULT_VALUE = 1.0;
+
+        if(clazz == null) return DEFAULT_VALUE;
+
+        if(!(clazz instanceof AnnotatedElement)) return DEFAULT_VALUE;
+
+        AnnotatedElement annotatedClazz = (AnnotatedElement) clazz;
+
+        for (Annotation annotation : annotatedClazz.getAnnotations()) {
+            if(annotation.annotationType().getSimpleName().equals("Especificacao")){
+                try{
+                    return (double) annotation.annotationType().getMethod("similaridade").invoke(annotation);
+                } catch(Exception e) {
+                    return DEFAULT_VALUE;
+                }
+            }
+        }
+
+        return DEFAULT_VALUE;
     }
 
     // --- Métodos Auxiliares ---
