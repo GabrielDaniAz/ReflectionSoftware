@@ -9,91 +9,106 @@ import java.awt.event.ActionEvent;
 import java.io.File;
 
 public class GraphicalInterface {
-    
-    @SuppressWarnings("unused")
+
+    private JFrame frame;
+    private JPanel panel;
+
+    // Campos de diretórios agora são instâncias da classe DirectoryField
+    private DirectoryField templateDirectoryField;
+    private DirectoryField studentsDirectoryField;
+    private DirectoryField pdfDirectoryField;
+    private DirectoryField stepCorrectionField;
+
     public void show() {
-        // Criar a interface gráfica
-        JFrame frame = new JFrame("Reflection Software");
+        frame = new JFrame("Reflection Software");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setSize(450, 350);
-        frame.setLocationRelativeTo(null); // Centraliza a janela na tela
 
-        // Painel principal com layout
-        JPanel panel = new JPanel();
+        frame.setSize(550, 350);
+        frame.setMinimumSize(new Dimension(500,300));
+        frame.setMaximumSize(new Dimension(600,400));
+
+        frame.setLocationRelativeTo(null); // Centraliza a janela
+
+        panel = new JPanel();
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
-        panel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20)); // Adiciona espaço ao redor
+        panel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
-        // Cabeçalho
+        addHeader();
+        addFieldsPanel();
+        addStartButton();
+
+        frame.add(panel);
+        frame.setVisible(true);
+    }
+
+    private void addHeader() {
         JLabel headerLabel = new JLabel("Configurações do Software", SwingConstants.CENTER);
         headerLabel.setFont(new Font("Arial", Font.BOLD, 18));
         headerLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
         panel.add(headerLabel);
-        panel.add(Box.createRigidArea(new Dimension(0, 20))); // Espaçamento abaixo do título
+        panel.add(Box.createRigidArea(new Dimension(0, 20)));
+    }
 
-        // Criar campos de entrada
-        JPanel fieldsPanel = new JPanel(new GridLayout(4, 2, 10, 10)); // Grid com espaçamento entre os campos
+    private void addFieldsPanel() {
+        // Criar instâncias de DirectoryField para cada campo de entrada
+        templateDirectoryField = new DirectoryField("Diretório do Gabarito:");
+        studentsDirectoryField = new DirectoryField("Diretório dos Alunos:");
+        pdfDirectoryField = new DirectoryField("Diretório PDFs:");
+        stepCorrectionField = new DirectoryField("Passo de Correção:");
+
+        JPanel fieldsPanel = new JPanel(new GridLayout(4, 1, 10, 10)); // Ajustar para 1 coluna por campo
         fieldsPanel.setAlignmentX(Component.CENTER_ALIGNMENT);
-        
-        JTextField templateDirectoryField = new JTextField(20);
-        JTextField studentsDirectoryField = new JTextField(20);
-        JTextField pdfDirectoryField = new JTextField(20);
-        JTextField stepCorrectionField = new JTextField(20);
 
-        fieldsPanel.add(new JLabel("Diretório de Template:"));
-        fieldsPanel.add(templateDirectoryField);
-        fieldsPanel.add(new JLabel("Diretório dos Alunos:"));
-        fieldsPanel.add(studentsDirectoryField);
-        fieldsPanel.add(new JLabel("Diretório PDFs:"));
-        fieldsPanel.add(pdfDirectoryField);
-        fieldsPanel.add(new JLabel("Passo de Correção:"));
-        fieldsPanel.add(stepCorrectionField);
+        // Adicionando os campos e labels ao painel
+        fieldsPanel.add(templateDirectoryField.getPanel());
+        fieldsPanel.add(studentsDirectoryField.getPanel());
+        fieldsPanel.add(pdfDirectoryField.getPanel());
+        fieldsPanel.add(stepCorrectionField.getPanel());
 
         panel.add(fieldsPanel);
-
-        // Espaçamento adicional entre os campos e o botão
         panel.add(Box.createRigidArea(new Dimension(0, 20)));
+    }
 
-        // Criar o botão de execução
+    @SuppressWarnings("unused")
+    private void addStartButton() {
         JButton startButton = new JButton("Iniciar");
         startButton.setFont(new Font("Arial", Font.BOLD, 14));
         startButton.setBackground(new Color(0, 123, 255)); // Cor de fundo azul
         startButton.setForeground(Color.WHITE); // Cor do texto branco
         startButton.setFocusPainted(false);
         startButton.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        startButton.addActionListener((ActionEvent e) -> executeApp());
+
         panel.add(startButton);
+    }
 
-        // Adicionar o painel à janela
-        frame.add(panel);
-        frame.setVisible(true);
+    private void executeApp() {
+        try {
+            // Obter os valores dos campos diretamente de cada instância de DirectoryField
+            String templateDir = templateDirectoryField.getText();
+            String studentsDir = studentsDirectoryField.getText();
+            String pdfDir = pdfDirectoryField.getText();
+            String stepCorrection = stepCorrectionField.getText();
 
-        // Ação para o botão de iniciar
-        startButton.addActionListener((ActionEvent e) -> {
-            try {
-                // Obter os valores dos campos
-                String templateDir = templateDirectoryField.getText();
-                String studentsDir = studentsDirectoryField.getText();
-                String pdfDir = pdfDirectoryField.getText();
-                String stepCorrection = stepCorrectionField.getText();
+            // Validar os diretórios
+            InputValidator.validateArguments(new String[]{templateDir, studentsDir, pdfDir, stepCorrection});
 
-                // Validar os diretórios
-                InputValidator.validateArguments(new String[]{templateDir, studentsDir, pdfDir, stepCorrection});
-                
-                File templateDirectory = new File(templateDir);
-                File studentsDirectory = new File(studentsDir);
-                File pdfDirectory = new File(pdfDir);
+            File templateDirectory = new File(templateDir);
+            File studentsDirectory = new File(studentsDir);
+            File pdfDirectory = new File(pdfDir);
 
-                // Criar e iniciar o controlador principal
-                AppController app = new AppController(templateDirectory, studentsDirectory, pdfDirectory, stepCorrection);
-                app.start();
+            // Criar e iniciar o controlador principal
+            AppController app = new AppController(templateDirectory, studentsDirectory, pdfDirectory, stepCorrection);
+            app.start();
 
-                // Exibir mensagem de sucesso e fechar o programa
-                JOptionPane.showMessageDialog(frame, "Software executado com sucesso!", "Sucesso", JOptionPane.INFORMATION_MESSAGE);
-                frame.dispose(); // Fechar a janela
+            // Exibir mensagem de sucesso e fechar o programa
+            JOptionPane.showMessageDialog(frame, "Software executado com sucesso!", "Sucesso", JOptionPane.INFORMATION_MESSAGE);
+            frame.dispose(); // Fechar a janela
 
-            } catch (Exception ex) {
-                // Exibir o erro na interface gráfica
-                JOptionPane.showMessageDialog(frame, "Erro: " + ex.getMessage(), "Erro", JOptionPane.ERROR_MESSAGE);
-            }
-        });
+        } catch (Exception ex) {
+            // Exibir o erro na interface gráfica
+            JOptionPane.showMessageDialog(frame, "Erro: " + ex.getMessage(), "Erro", JOptionPane.ERROR_MESSAGE);
+        }
     }
 }
