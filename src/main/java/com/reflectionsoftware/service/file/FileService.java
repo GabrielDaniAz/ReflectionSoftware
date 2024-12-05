@@ -192,7 +192,7 @@ public class FileService {
     }
 
     public static void unpackAll(File directory) {
-        if(FileValidator.hasCompressedFile(directory)){
+        while(FileValidator.hasCompressedFile(directory)){
             DirectoryUnpacker.unpackAll(directory);
         }
     }

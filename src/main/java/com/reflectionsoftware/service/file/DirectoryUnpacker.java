@@ -9,18 +9,25 @@ public class DirectoryUnpacker {
     public static void unpackAll(File directory) {
         try {
             Files.walk(directory.toPath())
-                    .filter(Files::isRegularFile)
-                    .forEach(file -> {
+                .filter(Files::isRegularFile)
+                .forEach(file -> {
+                    try {
                         if (file.toString().endsWith(".zip")) {
                             unpackZip(file);
+                            Files.delete(file);
                         } else if (file.toString().endsWith(".gz")) {
                             unpackGzip(file);
+                            Files.delete(file);
                         }
-                    });
+                    } catch (IOException e) {
+                        throw new IllegalStateException("Erro ao descompactar ou deletar o arquivo", e);
+                    }
+                });
         } catch (IOException e) {
-            throw new IllegalStateException("Erro ao percorrer os arquivos no diretório: " + directory.getPath() + " - " + e.getMessage());
+            throw new IllegalStateException("Erro ao percorrer os arquivos no diretório: " + directory.getPath() + " - " + e.getMessage(), e);
         }
     }
+    
 
     private static void unpackZip(Path zipFile) {
         Path targetDir = zipFile.getParent();

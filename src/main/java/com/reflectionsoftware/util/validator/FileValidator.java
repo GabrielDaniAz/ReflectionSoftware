@@ -30,6 +30,9 @@ public class FileValidator {
                 if (file.isFile() && (hasExtension(file, ".zip") || hasExtension(file, ".gz"))) {
                     return true;
                 }
+                else if (file.isDirectory() && hasCompressedFile(file)) {
+                    return true;
+                }
             }
         }
 
