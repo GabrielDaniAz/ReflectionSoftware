@@ -19,7 +19,7 @@ public class DirectoryField {
         chooseButton.setPreferredSize(new Dimension(20, 20)); // Botão menor
 
         // Ação do botão que abre o FileChooser
-        chooseButton.addActionListener((@SuppressWarnings("unused") ActionEvent e) -> {
+        chooseButton.addActionListener((ActionEvent e) -> {
             JFileChooser fileChooser = new JFileChooser();
             fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY); // Apenas diretórios
             int result = fileChooser.showOpenDialog(null);

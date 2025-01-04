@@ -69,7 +69,6 @@ public class GraphicalInterface {
         panel.add(Box.createRigidArea(new Dimension(0, 20)));
     }
 
-    @SuppressWarnings("unused")
     private void addStartButton() {
         JButton startButton = new JButton("Iniciar");
         startButton.setFont(new Font("Arial", Font.BOLD, 14));
