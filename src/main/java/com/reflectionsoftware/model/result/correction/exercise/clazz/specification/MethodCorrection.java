@@ -15,10 +15,11 @@ public class MethodCorrection extends SpecificationElement<Method>{
     public double getObtainedGrade() {
         double score = 0;
 
-        if (checkVisibility()) score += 0.25;
-        if (checkModifiers()) score += 0.25;
-        if (checkReturnType()) score += 0.25;
-        if (checkParameters()) score += 0.25;
+        if (checkVisibility()) score += 0.2;
+        if (checkModifiers()) score += 0.2;
+        if (checkReturnType()) score += 0.2;
+        if (checkParameters()) score += 0.2;
+        if (checkTest()) score += 0.2;
 
         return score * getGrade();
     }

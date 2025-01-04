@@ -77,7 +77,7 @@ public class PdfElement {
 
     // Adiciona tabela para os métodos
     private static void addTableForMethods(Document document, List<SpecificationElement<?>> elements) {
-        List<String> headers = List.of("Metodo", "Visibilidade", "Modificador", "Retorno", "Parâmetros", "Nota");
+        List<String> headers = List.of("Metodo", "Visibilidade", "Modificador", "Retorno", "Parâmetros", "Teste", "Nota");
 
         // Funções que extraem os valores para a tabela
         List<Function<SpecificationElement<?>, String>> valueExtractors = List.of(
@@ -86,6 +86,7 @@ public class PdfElement {
             element -> element.checkModifiers() ? "V" : "X", // Modificador
             element -> element.checkReturnType() ? "V" : "X", // Retorno
             element -> element.checkParameters() ? "V" : "X", // Parâmetros
+            element -> element.checkTest() ? "V" : "X",
             element -> String.format("%.2f", element.getObtainedGrade()) + " / " + String.format("%.2f", element.getGrade())
         );
 

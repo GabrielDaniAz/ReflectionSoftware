@@ -36,6 +36,8 @@ public abstract class SpecificationElement<T> implements ISpecificationElement{
     @Override
     public boolean checkParameters() { return ElementUtils.checkParameters(template, student); };
 
+    public boolean checkTest(){ return ElementUtils.checkTest(template, student); }
+
     @Override
     public double getGrade() { return ElementUtils.getGrade(template); }
 

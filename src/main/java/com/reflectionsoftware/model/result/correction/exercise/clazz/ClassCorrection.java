@@ -65,22 +65,6 @@ public class ClassCorrection {
         return corrected;
     }
 
-    public double getGrade() {
-        return elements.stream()
-                .mapToDouble(SpecificationElement::getGrade)
-                .sum();
-    }
-
-    public double getObtainedGrade() {
-        return elements.stream()
-                .mapToDouble(SpecificationElement::getObtainedGrade)
-                .sum();
-    }
-
-    public boolean allFieldsPrivate() {
-        return ElementUtils.allFieldsPrivate(template);
-    }
-
     public List<SpecificationElement<?>> getMissingElements() {
         List<SpecificationElement<?>> missing = new ArrayList<>();
 
@@ -91,5 +75,55 @@ public class ClassCorrection {
         }
 
         return missing;
+    }
+
+    public List<SpecificationElement<?>> getExtraElements() {
+        List<SpecificationElement<?>> extra = new ArrayList<>();
+    
+        // Verifica se a correspondência exata é necessária para atributos, construtores e métodos
+        boolean isAttributesExact = ElementUtils.isAttributesExact(template);
+        boolean isConstructorsExact = ElementUtils.isConstructorsExact(template);
+        boolean isMethodsExact = ElementUtils.isMethodsExact(template);
+    
+        // Itera sobre os elementos e verifica se o tipo e a condição exata coincidem
+        for (SpecificationElement<?> element : elements) {
+            boolean isValidElement = false;
+    
+            // Verifica se o elemento é do tipo correto e se a condição exata se aplica
+            if (element.getClass().equals(FieldCorrection.class) && isAttributesExact) {
+                isValidElement = true;
+            } else if (element.getClass().equals(ConstructorCorrection.class) && isConstructorsExact) {
+                isValidElement = true;
+            } else if (element.getClass().equals(MethodCorrection.class) && isMethodsExact) {
+                isValidElement = true;
+            }
+    
+            // Se for um elemento válido e o estudante tem mas o template não, é considerado extra
+            if (isValidElement && element.hasStudent() && !element.hasTemplate()) {
+                extra.add(element);
+            }
+        }
+    
+        return extra;
+    }
+    
+
+    public double getGrade() {
+        return elements.stream()
+                .mapToDouble(SpecificationElement::getGrade)
+                .sum();
+    }
+
+    public double getObtainedGrade() {
+        double grade = getCorrectedElements().stream()
+                .mapToDouble(SpecificationElement::getObtainedGrade)
+                .sum();
+        double penalty = ElementUtils.getPenalty(template) * getExtraElements().size();
+
+        return grade - penalty;
+    }
+
+    public boolean allFieldsPrivate() {
+        return ElementUtils.allFieldsPrivate(template);
     }
 }
