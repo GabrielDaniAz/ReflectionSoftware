@@ -56,7 +56,7 @@ O software automatiza o processo de avaliação de exercícios práticos de POO.
    ```
 
 - **Baixando a Biblioteca**:
-  - Faça o download da biblioteca `com.javacorrige` no seguinte link: [javacorrigelib v1.0.1](https://github.com/GabrielDaniAz/javacorrigelib/releases/tag/v1.0).
+  - Faça o download da biblioteca `com.javacorrige` no seguinte link: [javacorrigelib v1.0](https://github.com/GabrielDaniAz/javacorrigelib/releases/tag/v1.0).
 
 ### 2. Pasta de Códigos dos Alunos
 - **Estrutura**:
