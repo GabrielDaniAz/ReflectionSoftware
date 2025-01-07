@@ -73,13 +73,55 @@ O software automatiza o processo de avaliação de exercícios práticos de POO.
 
 ## Executando o Software
 
-Para executar o software, utilize o comando:
+Para executar o software, você tem duas opções:
 
-```bash
-mvn exec:java
-```
+1. **Via Maven:**
+   Antes de rodar o programa, é importante realizar uma compilação completa para garantir que todas as dependências estejam corretas. Execute:
+   
+   ```bash
+   mvn clean install
+   ```
 
-ou apenas execute o ícone executável.
+   Em seguida, rode o programa diretamente pelo Maven:
+   
+   ```bash
+   mvn exec:java
+   ```
+
+2. **Via Executável:**
+   Localize o arquivo executável gerado (veja as instruções abaixo) e simplesmente clique nele para iniciar o programa.
+
+---
+
+## Criando o Executável
+
+Para gerar o executável do software, siga estas etapas:
+
+1. Certifique-se de que o JAR com dependências foi gerado. Use o comando:
+   
+   ```bash
+   mvn clean package
+   ```
+
+   Isso criará o arquivo JAR no diretório `target/`.
+
+2. Use o comando abaixo para criar um executável utilizando o `jpackage`:
+
+   ```bash
+   jpackage --input target/ --name JavaCorrige --main-jar javacorrige-1.0-SNAPSHOT-jar-with-dependencies.jar --main-class com.javacorrige.Main --type app-image --icon src/main/resources/assets/icons/javacorrige_icon.ico --dest "C:\JavaCorrige"
+   ```
+
+   Este comando:
+   - Cria uma pasta chamada `JavaCorrige` no diretório especificado em `--dest`.
+   - Dentro da pasta, você encontrará o executável e os arquivos necessários para rodá-lo.
+
+3. **Alterar diretório de saída:**
+   Se preferir um diretório de saída diferente, substitua `C:\JavaCorrige` no parâmetro `--dest` pelo caminho desejado.
+
+---
+
+Após seguir esses passos, você poderá executar o software diretamente pelo executável ou compartilhar a pasta gerada com outros usuários.
+
 ---
 
 ## Funcionamento do Sistema
