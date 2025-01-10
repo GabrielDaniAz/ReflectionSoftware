@@ -30,6 +30,10 @@ public class ClassCorrection {
     private List<SpecificationElement<?>> initializeElements(Class<?> template, Class<?> student) {
         List<SpecificationElement<?>> elementList = new ArrayList<>();
 
+        if(template == null || student == null){
+            return elementList;
+        }
+
         HashMap<Object, Object> mappedElements = ElementMapper.mapElements(template, student);
 
         mappedElements.forEach((templateElement, studentElement) -> {

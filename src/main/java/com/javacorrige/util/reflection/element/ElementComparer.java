@@ -13,6 +13,9 @@ public class ElementComparer {
      * Compara dois elementos pelo nome.
      */
     public static boolean hasSameName(Object templateElement, Object studentElement, double similarityThreshold) {
+        if (templateElement.getClass() != studentElement.getClass()) {
+            return false;
+        }
         String templateName = getElementName(templateElement);
         String studentName = getElementName(studentElement);
 
@@ -24,6 +27,10 @@ public class ElementComparer {
      * Compara a similaridade entre elementos com base em critérios avançados.
      */
     public static boolean areSimilar(Object templateElement, Object studentElement, double similarityThreshold) {
+        if (templateElement.getClass() != studentElement.getClass()) {
+            return false;
+        }
+
         if (!hasSameName(templateElement, studentElement, similarityThreshold)) return false;
         
         if (templateElement instanceof Method templateMethod && studentElement instanceof Method studentMethod) {
@@ -53,4 +60,5 @@ public class ElementComparer {
         }
         return null;
     }
+    
 }

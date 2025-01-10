@@ -32,7 +32,12 @@ public class PdfService {
 
             PdfHeaderService.addHeader(document, student.getName(), gradeString);
 
-            if(!student.getCompilationResult().isSuccess()){
+            if(student.getCompilationResult() == null){
+                document.add(new Paragraph("Nenhum arquivo Java encontrado"));
+                document.close();
+                return;
+            }
+            else if(!student.getCompilationResult().isSuccess()){
                 document.add(new Paragraph(student.getCompilationResult().getDiagnostics().toString()));
                 document.close();
                 return;

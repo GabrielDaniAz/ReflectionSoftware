@@ -2,7 +2,6 @@ package com.javacorrige.util.reflection.element;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.*;
-import java.util.Arrays;
 
 import com.javacorrige.util.reflection.annotation.AnnotationExtractor;
 
@@ -37,12 +36,24 @@ public class ElementUtils {
         Class<?>[] templateParams = getParameterTypes(template);
         Class<?>[] studentParams = getParameterTypes(student);
     
-        // Ordena os parâmetros de ambos os lados antes de compará-los
-        Arrays.sort(templateParams, (a, b) -> a.getName().compareTo(b.getName()));
-        Arrays.sort(studentParams, (a, b) -> a.getName().compareTo(b.getName()));
+        // Verifica se ambos têm o mesmo número de parâmetros
+        if (templateParams.length != studentParams.length) {
+            return false;
+        }
     
-        return Arrays.equals(templateParams, studentParams);
+        // Compara os nomes completos dos parâmetros para verificar equivalência
+        for (int i = 0; i < templateParams.length; i++) {
+            String templateParamName = templateParams[i].getName();
+            String studentParamName = studentParams[i].getName();
+    
+            if (!templateParamName.equals(studentParamName)) {
+                return false; // Diferença encontrada
+            }
+        }
+    
+        return true; // Todos os parâmetros correspondem
     }
+    
     
 
     public static boolean checkReturnType(Object template, Object student) {
@@ -60,59 +71,44 @@ public class ElementUtils {
         Field templateField = (Field) template;
         Field studentField = (Field) student;
 
-        return templateField.getType().equals(studentField.getType());
+        return templateField.getType().getSimpleName().equals(studentField.getType().getSimpleName());
     }
 
     public static boolean checkTest(Object template, Object student) {
-
-        if(AnnotationExtractor.getTest(template) == null) return true;
-
-        System.out.println("Métodos a serem comparados: " + template.toString() + " / " + student.toString());
+        if(template == null || student == null) { return false; }
+        if(AnnotationExtractor.getTest(template) == null) { 
+            return true;
+        }
     
         if (!canValidateTest(template, student) || !checkParameters(template, student) || !checkReturnType(template, student)) return false;
-    
-        System.out.println("Foram validados");
-    
+        
         Method templateMethod = (Method) template;
         Method studentMethod = (Method) student;
-    
+        
+        if(!studentMethod.equals(templateMethod)) return false;
+            
         String[] methodParameters = getMethodParametersTest(templateMethod);
         String[] constructorParameters = getConstructorParametersTest(templateMethod);
     
-        System.out.println("Parametros método do template: " + Arrays.toString(methodParameters));
-        System.out.println("Parametros construtor do template: " + Arrays.toString(constructorParameters));
-    
-        try {
-            // Tipos esperados para os parâmetros do método
-            Class<?>[] methodParameterTypes = templateMethod.getParameterTypes();
-            System.out.println("Tipos esperados no método: " + Arrays.toString(methodParameterTypes));
-    
+        try {    
             // Converta os parâmetros da anotacão para os tipos correspondentes no método
             Object[] convertedMethodParameters = convertParameters(templateMethod, methodParameters);
-            System.out.println("Parâmetros do método convertidos: " + Arrays.toString(convertedMethodParameters));
 
             Constructor<?> matchingTemplateConstructor = findConstructorWithParameters(templateMethod.getDeclaringClass(), constructorParameters.length);
             Constructor<?> matchingStudentConstructor = findConstructorWithParameters(studentMethod.getDeclaringClass(), constructorParameters.length);
     
             Class<?>[] constructorParameterTypes = matchingTemplateConstructor.getParameterTypes();
-            System.out.println("Tipos esperados no construtor: " + Arrays.toString(constructorParameterTypes));
     
             // Converta os parâmetros do construtor para os tipos correspondentes
             Object[] convertedConstructorParameters = convertConstructorParameters(constructorParameters, constructorParameterTypes);
-            System.out.println("Parâmetros do construtor convertidos: " + Arrays.toString(convertedConstructorParameters));
     
             // Crie instâncias para invocar os métodos, se necessário
             Object templateInstance = Modifier.isStatic(templateMethod.getModifiers()) ? null : matchingTemplateConstructor.newInstance(convertedConstructorParameters);
             Object studentInstance = Modifier.isStatic(studentMethod.getModifiers()) ? null : matchingStudentConstructor.newInstance(convertedConstructorParameters);
     
-            System.out.println("Instância do template: " + templateInstance);
-            System.out.println("Instância do estudante: " + studentInstance);
-    
             // Execute ambos os métodos com os mesmos parâmetros
             Object templateResult = templateMethod.invoke(templateInstance, convertedMethodParameters);
             Object studentResult = studentMethod.invoke(studentInstance, convertedMethodParameters);
-    
-            System.out.println("Objetos de saída: " + templateResult + " / " + studentResult);
     
             // Compare os resultados
             return compareResults(templateResult, studentResult);
@@ -127,13 +123,11 @@ public class ElementUtils {
         if(parametersLength == 0) return null;
 
         Constructor<?>[] constructors = declaringClass.getConstructors();
-        System.out.println("Quantidade de construtores na classe: " + constructors.length);
 
         Constructor<?> matchingConstructor = null;
             for (Constructor<?> constructor : constructors) {
                 if (constructor.getParameterCount() == parametersLength) {
                     matchingConstructor = constructor;
-                    System.out.println("Achou o construtor: " + constructor.getParameterCount());
                     return matchingConstructor;
                 }
             }
@@ -203,6 +197,8 @@ public class ElementUtils {
     }
 
     public static double getGrade(Object element) {
+        if(element == null) { return 0.0; }
+
         try {
             Annotation annotation = AnnotationExtractor.getGrade(element);
             if (annotation == null) return 0.0;
@@ -242,12 +238,10 @@ public class ElementUtils {
         try {
             Annotation annotation = AnnotationExtractor.getTest(method);
             if (annotation == null) {
-                System.out.println("Não achou a anotacao");
                 return new String[0];
             }
     
             Method valueMethod = annotation.annotationType().getMethod("parametros");
-            System.out.println("Achou a anotacao: " + valueMethod.invoke(annotation));
             return (String[]) valueMethod.invoke(annotation);
     
         } catch (Exception e) {

@@ -13,6 +13,7 @@ public class ElementMapper {
 
         List<Object> templateElements = ElementExtractor.extractElements(templateClass);
         List<Object> studentElements = ElementExtractor.extractElements(studentClass);
+
         List<Object> unmatchedStudents = studentElements;
 
         double similarityThreshold = ElementUtils.getSimilarityThreshold(templateClass);
@@ -35,6 +36,8 @@ public class ElementMapper {
         }
 
         unmatchedStudents.forEach(unmatched -> elementMap.put(null, unmatched));
+
         return elementMap;
     }
+
 }

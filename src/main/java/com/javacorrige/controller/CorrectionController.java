@@ -18,7 +18,7 @@ public class CorrectionController {
 
     public void start(){
         for (Student student : students) {
-            if(!student.getCompilationResult().isSuccess()){
+            if(student.getCompilationResult() == null || !student.getCompilationResult().isSuccess()){
                 continue;
             }
             student.setReflectionResult(new ReflectionResult(template, student.getClasses()));

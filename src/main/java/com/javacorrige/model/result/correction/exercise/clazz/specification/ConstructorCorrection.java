@@ -41,18 +41,18 @@ public class ConstructorCorrection extends SpecificationElement<Constructor<?>> 
     private String convertParameterTypesToString(Constructor<?> constructor) {
         Class<?>[] parameterTypes = constructor.getParameterTypes();
         StringBuilder sb = new StringBuilder("(");
-
+    
         for (Class<?> paramType : parameterTypes) {
             sb.append(paramType.getSimpleName()).append(", ");
         }
-
-        // Remove a última vírgula e espaço
-        if (sb.length() > 0) {
+    
+        // Remove a última vírgula e espaço, se houver parâmetros
+        if (parameterTypes.length > 0) {
             sb.setLength(sb.length() - 2);
         }
-
+    
         sb.append(")");
-
         return sb.toString();
     }
+    
 }
