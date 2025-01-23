@@ -85,7 +85,7 @@ public class ElementUtils {
         Method templateMethod = (Method) template;
         Method studentMethod = (Method) student;
         
-        if(!studentMethod.equals(templateMethod)) return false;
+        // if(!studentMethod.equals(templateMethod)) return false;
             
         String[] methodParameters = getMethodParametersTest(templateMethod);
         String[] constructorParameters = getConstructorParametersTest(templateMethod);
@@ -138,8 +138,8 @@ public class ElementUtils {
     
     private static boolean compareResults(Object result1, Object result2) {
         // Lida com possíveis comparações entre primitivos e objetos
-        if (result1 == null || result2 == null) {
-            return result1 == result2;
+        if (result1 == null && result2 == null) {
+            return true;
         }
         return result1.equals(result2);
     }
