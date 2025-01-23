@@ -21,7 +21,7 @@ public class GraphicalInterface {
     private DirectoryField stepCorrectionField;
 
     public void show() {
-        frame = new JFrame("Reflection Software");
+        frame = new JFrame("Java Corrige");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
         frame.setSize(550, 350);
