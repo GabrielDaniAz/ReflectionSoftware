@@ -45,7 +45,7 @@ public class FileService {
         return directory.delete();
     }
 
-    public static void organizeStepDirectories(File directory, String stepCorrection) {    
+    public static File[] organizeStepDirectories(File directory, String stepCorrection) {
         // Lista as pastas em ordem alfanumérica
         File[] subDirectories = directory.listFiles(File::isDirectory);
         if (subDirectories == null || subDirectories.length == 0) {
@@ -54,21 +54,50 @@ public class FileService {
     
         Arrays.sort(subDirectories, (dir1, dir2) -> dir1.getName().compareToIgnoreCase(dir2.getName()));
     
+        List<File> selectedDirectories = new ArrayList<>();
         boolean found = false;
     
-        // Mantém apenas as pastas até encontrar o `stepCorrection`
+        // Adiciona as pastas até encontrar o `stepCorrection`
         for (File subDirectory : subDirectories) {
-            if (found) {
-                deleteDirectory(subDirectory); // Remove pastas após encontrar o stepCorrection
-            } else if (subDirectory.getName().equalsIgnoreCase(stepCorrection)) {
+            selectedDirectories.add(subDirectory);
+            if (subDirectory.getName().equalsIgnoreCase(stepCorrection)) {
                 found = true;
+                break;
             }
         }
     
         if (!found) {
             throw new IllegalArgumentException("A subpasta especificada como 'stepCorrection' não foi encontrada: " + stepCorrection);
         }
+    
+        // Retorna apenas as pastas selecionadas
+        return selectedDirectories.toArray(new File[0]);
     }
+
+    // public static void organizeStepDirectories(File directory, String stepCorrection) {    
+    //     // Lista as pastas em ordem alfanumérica
+    //     File[] subDirectories = directory.listFiles(File::isDirectory);
+    //     if (subDirectories == null || subDirectories.length == 0) {
+    //         throw new IllegalStateException("O diretório especificado não contém subpastas para organizar: " + directory.getPath());
+    //     }
+    
+    //     Arrays.sort(subDirectories, (dir1, dir2) -> dir1.getName().compareToIgnoreCase(dir2.getName()));
+    
+    //     boolean found = false;
+    
+    //     // Mantém apenas as pastas até encontrar o `stepCorrection`
+    //     for (File subDirectory : subDirectories) {
+    //         if (found) {
+    //             deleteDirectory(subDirectory); // Remove pastas após encontrar o stepCorrection
+    //         } else if (subDirectory.getName().equalsIgnoreCase(stepCorrection)) {
+    //             found = true;
+    //         }
+    //     }
+    
+    //     if (!found) {
+    //         throw new IllegalArgumentException("A subpasta especificada como 'stepCorrection' não foi encontrada: " + stepCorrection);
+    //     }
+    // }
 
 
     // --- Métodos de Manipulação de Arquivo ---

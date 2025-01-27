@@ -5,7 +5,6 @@ import java.util.List;
 
 import com.javacorrige.model.Student;
 import com.javacorrige.model.template.Template;
-import com.javacorrige.service.file.FileService;
 import com.javacorrige.util.processor.StudentProcessor;
 import com.javacorrige.util.processor.TemplateProcessor;
 
@@ -23,9 +22,7 @@ public class AppController {
     }
     
     public void start() {
-        FileService.organizeStepDirectories(templateDirectory, stepCorrection);
-
-        Template template = TemplateProcessor.processTemplateDirectory(templateDirectory);
+        Template template = TemplateProcessor.processTemplateDirectory(templateDirectory, stepCorrection);
         List<Student> students = StudentProcessor.processStudentDirectory(studentsDirectory);
 
         CorrectionController correctionController = new CorrectionController(template, students);

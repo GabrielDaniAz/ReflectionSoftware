@@ -14,11 +14,13 @@ import com.javacorrige.service.file.FileService;
 
 public class TemplateProcessor {
 
-    public static Template processTemplateDirectory(File templateDirectory) {
+    public static Template processTemplateDirectory(File templateDirectory, String stepCorrection) {
+        File[] subDirs = FileService.organizeStepDirectories(templateDirectory, stepCorrection);
+
         String templateName = templateDirectory.getName();
         List<Exercise> exercises = new ArrayList<>();
 
-        File[] subDirs = FileService.getDirectSubdirectories(templateDirectory);
+        // File[] subDirs = FileService.getDirectSubdirectories(templateDirectory);
 
         for (File subDir : subDirs) {
             Exercise exercise = processSingleExerciseDirectory(subDir);
