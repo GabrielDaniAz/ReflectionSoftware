@@ -114,7 +114,7 @@ public class ElementUtils {
             return compareResults(templateResult, studentResult);
     
         } catch (Exception e) {
-            e.printStackTrace(); // Exibe o stack trace completo
+            // e.printStackTrace(); // Exibe o stack trace completo
             return false;
         }
     }

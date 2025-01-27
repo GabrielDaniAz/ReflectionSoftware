@@ -39,7 +39,7 @@ O software automatiza o processo de avaliação de exercícios práticos de POO.
 - **Anotação `@Nota`**:
   - Utilize a biblioteca `com.javacorrige` para atribuir notas aos elementos do gabarito:
     ```java
-    @Nota(valor = 3)
+    @Nota(3)
     public void exemploMetodo() {
         // Exemplo de método anotado com nota
     }
@@ -52,6 +52,25 @@ O software automatiza o processo de avaliação de exercícios práticos de POO.
    @Especificacao(atributosExatos = false, construtoresExatos = true, similaridade = 0.7, penalidade = 0.2) // construtores está presente mas penso em retirar.
    public class Classe {
       //Exemplo de classe anotado com Especificação
+   }
+   ```
+
+- **Anotação `Testar`**:
+   - Utilize a biblioteca `com.javacorrige` para definir testes automatizados para métodos, especificando valores de entrada e, opcionalmente, o construtor utilizado.
+   ```java
+   import com.javacorrige.Testar;
+
+   public class ExemploGabarito {
+      private int soma;
+
+      public ExemploGabarito(int inicial) {
+         this.soma = inicial;
+      }
+
+      @Testar(parametros = {"5", "10"}, construtor = {"0"})
+      public int somar(int a, int b) {
+         return a + b + soma;
+      }
    }
    ```
 
@@ -90,6 +109,54 @@ Para executar o software, você tem duas opções:
 
 2. **Via Executável:**
    Localize o arquivo executável gerado (veja as instruções abaixo) e simplesmente clique nele para iniciar o programa.
+
+3. **Via Prompt de Comando:**
+   Após gerar o arquivo `.jar` do projeto, você pode executar o software tanto no Windows quanto no Linux de forma direta pela linha de comando.
+
+   ### 1. Configurar o Arquivo `.bat` (Windows) ou `.sh` (Linux)
+
+   - O repositório contém um arquivo **`javacorrige.bat`** (Windows) e você pode criar um equivalente em Linux, chamado **`javacorrige.sh`**.
+   - Para tornar a execução mais fácil, adicione o diretório do arquivo `.bat` ou `.sh` ao seu `PATH`.
+
+   #### **Adicionando o Diretório ao PATH (Windows):**
+   1. Copie o arquivo `javacorrige.bat` para um diretório permanente no seu sistema.
+   2. Adicione esse diretório ao `PATH` do Windows:
+      - Abra o **Painel de Controle**.
+      - Navegue até **Sistema > Configurações Avançadas do Sistema > Variáveis de Ambiente**.
+      - Na seção **Variáveis do Sistema**, localize a variável `Path` e clique em **Editar**.
+      - Clique em **Novo** e adicione o caminho completo do diretório onde o `.bat` foi salvo.
+   3. Salve as alterações e feche.
+
+   Agora você pode rodar o programa pelo terminal com:
+   ```cmd
+   javacorrige "<diretorioGabarito>" "<diretorioAlunos>" "<diretorioPDFs>" "<passoCorrecao>"
+   ```
+
+   **Exemplo:**
+   ```cmd
+   javacorrige "C:\Exercicios\Gabarito" "C:\Exercicios\Alunos" "C:\Exercicios\PDFs" "Exercicio1"
+   ```
+
+   #### **Adicionando o Diretório ao PATH (Linux):**
+   1. Copie o arquivo `javacorrige.sh` para um diretório permanente, como `/usr/local/bin`.
+   2. Torne o arquivo executável com o comando:
+      ```bash
+      chmod +x /usr/local/bin/javacorrige.sh
+      ```
+   3. Renomeie o arquivo para `javacorrige` (opcional):
+      ```bash
+      mv /usr/local/bin/javacorrige.sh /usr/local/bin/javacorrige
+      ```
+
+   Agora você pode rodar o programa diretamente:
+   ```bash
+   javacorrige "<diretorioGabarito>" "<diretorioAlunos>" "<diretorioPDFs>" "<passoCorrecao>"
+   ```
+
+   **Exemplo:**
+   ```bash
+   javacorrige "/home/usuario/exercicios/gabarito" "/home/usuario/exercicios/alunos" "/home/usuario/exercicios/pdfs" "Exercicio1
+   ```
 
 ---
 
