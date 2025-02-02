@@ -50,6 +50,25 @@ public class ClassCorrection {
                 elementList.add(new ConstructorCorrection(
                         (Constructor<?>) templateElement, 
                         (Constructor<?>) studentElement));
+            } else {
+                if (studentElement instanceof Iterable<?>) {
+                    for (Object element : (Iterable<?>) studentElement) {
+                        if (element instanceof Field) {
+                            elementList.add(new FieldCorrection(
+                                    null, 
+                                    (Field) element,
+                                    allFieldsPrivate()));
+                        } else if (templateElement instanceof Method || element instanceof Method) {
+                            elementList.add(new MethodCorrection(
+                                    null, 
+                                    (Method) element));
+                        } else if (templateElement instanceof Constructor<?> || element instanceof Constructor<?>) {
+                            elementList.add(new ConstructorCorrection(
+                                    null, 
+                                    (Constructor<?>) element));
+                        }
+                    }
+                }
             }
         });
 

@@ -35,7 +35,8 @@ public class ElementMapper {
             unmatchedStudents.remove(matchedElement);
         }
 
-        unmatchedStudents.forEach(unmatched -> elementMap.put(null, unmatched));
+        // unmatchedStudents.forEach(unmatched -> elementMap.put(null, unmatched));
+        elementMap.put(null, unmatchedStudents);
 
         return elementMap;
     }
