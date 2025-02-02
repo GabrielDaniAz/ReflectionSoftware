@@ -1,5 +1,6 @@
 package com.javacorrige.service.pdf;
 
+import com.itextpdf.kernel.colors.ColorConstants;
 import com.itextpdf.kernel.geom.PageSize;
 import com.itextpdf.kernel.pdf.PdfDocument;
 import com.itextpdf.kernel.pdf.PdfWriter;
@@ -25,6 +26,7 @@ public class PdfService {
             if (student.getReflectionResult() != null) {
                 grade = student.getReflectionResult().getGrade();
                 obtainedGrade = student.getReflectionResult().getObtainedGrade();
+                if(obtainedGrade < 0) obtainedGrade = 0;
             }
 
             String gradeString = String.format("%.2f / %.2f", obtainedGrade, grade);
@@ -38,6 +40,11 @@ public class PdfService {
                 return;
             }
             else if(!student.getCompilationResult().isSuccess()){
+                Paragraph studentError = new Paragraph("Erro de compilação por parte do Aluno").setFontSize(16)
+                    .setBold()
+                    .setFontColor(ColorConstants.RED)
+                    .setMarginTop(10);
+                document.add(studentError);
                 document.add(new Paragraph(student.getCompilationResult().getDiagnostics().toString()));
                 document.close();
                 return;
