@@ -105,7 +105,7 @@ public class ElementUtils {
             // Crie instâncias para invocar os métodos, se necessário
             Object templateInstance = Modifier.isStatic(templateMethod.getModifiers()) ? null : matchingTemplateConstructor.newInstance(convertedConstructorParameters);
             Object studentInstance = Modifier.isStatic(studentMethod.getModifiers()) ? null : matchingStudentConstructor.newInstance(convertedConstructorParameters);
-    
+
             // Execute ambos os métodos com os mesmos parâmetros
             Object templateResult = templateMethod.invoke(templateInstance, convertedMethodParameters);
             Object studentResult = studentMethod.invoke(studentInstance, convertedMethodParameters);
@@ -120,7 +120,7 @@ public class ElementUtils {
     }
 
     private static Constructor<?> findConstructorWithParameters(Class<?> declaringClass, int parametersLength) {
-        if(parametersLength == 0) return null;
+        // if(parametersLength == 0) return null;
 
         Constructor<?>[] constructors = declaringClass.getConstructors();
 
