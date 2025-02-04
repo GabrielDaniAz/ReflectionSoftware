@@ -18,7 +18,7 @@ public class PdfClassCorrection {
 
     public static void addClassCorrection(Document document, ClassCorrection classCorrection) {
         // Adiciona o título da classe
-        addTitle(document, "Classe `" + classCorrection.getTemplate().getSimpleName() + "`:");
+        addTitle(document, "Classe `" + classCorrection.getTemplate().getSimpleName() + "`(" + String.format("%.2f", classCorrection.getObtainedGrade()) + "/" + String.format("%.2f", classCorrection.getGrade()) + ")");
 
         // Adiciona os elementos ausentes
         addElementsByType(

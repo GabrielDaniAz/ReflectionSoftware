@@ -10,7 +10,7 @@ public class PdfReflectionResultService {
 
     public static void addReflectionResult(Document document, ReflectionResult reflectionResult) {
         for (ExerciseCorrection exercise : reflectionResult.getExercises()) {
-            Paragraph stepTitle = new Paragraph("Exercício `" + exercise.getExerciseName() + "`:")
+            Paragraph stepTitle = new Paragraph("Exercício `" + exercise.getExerciseName() + "`:  (" + String.format("%.2f", exercise.getObtainedGrade()) + "/" + String.format("%.2f", exercise.getGrade()) + ")")
                     .setFontSize(16)
                     .setBold()
                     .setFontColor(ColorConstants.BLUE)

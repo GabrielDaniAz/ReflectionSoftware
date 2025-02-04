@@ -14,20 +14,40 @@ public class PdfElement {
 
         // Filtra elementos do tipo Construtor, Campo e Método
         List<SpecificationElement<?>> constructors = ElementFilter.getElementsByType(elements, ElementType.CONSTRUCTOR);
+        double constructorGrade = 0;
+        double constructorObtainedGrade = 0;
+        for (SpecificationElement<?> c : constructors) {
+            constructorGrade += c.getGrade();
+            constructorObtainedGrade += c.getObtainedGrade();
+        }
+
         List<SpecificationElement<?>> fields = ElementFilter.getElementsByType(elements, ElementType.FIELD);
+        double fieldGrade = 0;
+        double fieldObtainedGrade = 0;
+        for (SpecificationElement<?> f : fields) {
+            fieldGrade += f.getGrade();
+            fieldObtainedGrade += f.getObtainedGrade();
+        }
+
         List<SpecificationElement<?>> methods = ElementFilter.getElementsByType(elements, ElementType.METHOD);
+        double methodGrade = 0;
+        double methodObtainedGrade = 0;
+        for (SpecificationElement<?> f : methods) {
+            methodGrade += f.getGrade();
+            methodObtainedGrade += f.getObtainedGrade();
+        }
 
         // Adiciona o título da seção (diferente para cada tipo de elemento)
         if(!constructors.isEmpty()){
-            addSectionTitle(document, "Construtores", constructors);
+            addSectionTitle(document, "Construtores " + "(" + String.format("%.2f", constructorObtainedGrade) + "/" + String.format("%.2f", constructorGrade) + "):", constructors);
             addTableForConstructors(document, constructors);
         }
         if(!fields.isEmpty()){
-            addSectionTitle(document, "Atributos", fields);
+            addSectionTitle(document, "Atributos " + "(" + String.format("%.2f", fieldObtainedGrade) + "/" + String.format("%.2f", fieldGrade) + "):", fields);
             addTableForFields(document, fields);
         }
         if(!methods.isEmpty()){
-            addSectionTitle(document, "Métodos", methods);
+            addSectionTitle(document, "Métodos " + "(" + String.format("%.2f", methodObtainedGrade) + "/" + String.format("%.2f", methodGrade) + "):", methods);
             addTableForMethods(document, methods);
         }
     }
